@@ -6,6 +6,7 @@ import { EventDetail } from "@/components/events/event-detail";
 import { EventHighlightPanel } from "@/components/events/event-highlight-panel";
 import { FilterBar } from "@/components/filter-bar";
 import { RallyBuddy } from "@/components/rally-buddy";
+import { RallyBuddyChat } from "@/components/rally-buddy-chat";
 import { SiteHeader } from "@/components/site-header";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -37,9 +38,11 @@ const DEFAULT_FILTERS: EventFilters = { time: "all", source: "all", categories: 
 export function RallyApp({
   initialData,
   initialPoints,
+  user,
 }: {
   initialData: EventListResponse;
   initialPoints: PointsDto;
+  user: { name: string; avatarUrl: string | null; avatarColor: string };
 }) {
   const [filters, setFilters] = useState<EventFilters>(DEFAULT_FILTERS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -48,14 +51,11 @@ export function RallyApp({
   const { data, error, isLoading, isValidating, mutate: mutateList } = useEvents(filters, initialData);
   const events = data?.events ?? [];
   const total = data?.total ?? 0;
+  const visibleSelectedId = selectedId && events.some((event) => event.id === selectedId)
+    ? selectedId
+    : null;
 
-  // Prototype behavior: a selection that gets filtered out is cleared.
-  // (Render-phase state adjustment — React re-renders before commit.)
-  if (selectedId && data && !data.events.some((e) => e.id === selectedId)) {
-    setSelectedId(null);
-  }
-
-  const selectedSummary = events.find((e) => e.id === selectedId) ?? null;
+  const selectedSummary = events.find((e) => e.id === visibleSelectedId) ?? null;
   const { data: detailData } = useEventDetail(selectedId, selectedSummary?.joined ?? false);
   const detail = detailData?.event ?? null;
 
@@ -94,7 +94,7 @@ export function RallyApp({
       loading={isLoading && !data}
       refreshing={isValidating && !!data}
       error={error}
-      selectedId={selectedId}
+      selectedId={visibleSelectedId}
       onSelect={(id) => setSelectedId(id)}
       onToggleJoin={toggleJoin}
       onClearFilters={() => setFilters(DEFAULT_FILTERS)}
@@ -105,15 +105,21 @@ export function RallyApp({
   return (
     <div className="rally-shell">
       <a className="skip-link" href="#event-results">Skip to events</a>
-      <SiteHeader points={points ?? initialPoints} />
-      <FilterBar filters={filters} onChange={setFilters} />
+      <SiteHeader points={points ?? initialPoints} user={user} />
+      <FilterBar
+        filters={filters}
+        onChange={(nextFilters) => {
+          setSelectedId(null);
+          setFilters(nextFilters);
+        }}
+      />
 
       <main className="rally-workspace">
-        <CampusMap events={events} selectedId={selectedId} onSelect={setSelectedId} />
+        <CampusMap events={events} selectedId={visibleSelectedId} onSelect={setSelectedId} />
 
         {/* Desktop rail: detail view when a pin/card is selected, else highlights */}
         <aside id={!isMobile ? "event-results" : undefined} tabIndex={-1} aria-label="Campus events" className="rally-desktop-panel">
-          {selectedId ? detailView : panel}
+          {visibleSelectedId ? detailView : panel}
         </aside>
 
         {/* Mobile: highlights stack below the map; detail opens in a sheet */}
@@ -123,7 +129,7 @@ export function RallyApp({
       </main>
 
       <Sheet
-        open={isMobile && selectedId !== null}
+        open={isMobile && visibleSelectedId !== null}
         onOpenChange={(open) => {
           if (!open) setSelectedId(null);
         }}
@@ -136,6 +142,12 @@ export function RallyApp({
           {detailView}
         </SheetContent>
       </Sheet>
+      <RallyBuddyChat
+        onSelectEvent={(id) => {
+          setFilters(DEFAULT_FILTERS);
+          setSelectedId(id);
+        }}
+      />
     </div>
   );
 }

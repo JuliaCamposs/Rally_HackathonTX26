@@ -348,6 +348,58 @@
   }
 }
 
+/* ---------- Rally Buddy activity finder ---------- */
+
+.rally-buddy-chat { position: fixed; right: 24px; bottom: 22px; z-index: 1200; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+.rally-buddy-launcher { display: flex; align-items: center; gap: 10px; min-height: 62px; padding: 4px 16px 4px 7px; border: 1px solid #cfe1d5; border-radius: 999px; background: #fff; color: var(--color-ink); box-shadow: 0 10px 32px rgb(11 31 24 / .18); transition: transform .18s ease, box-shadow .18s ease; }
+.rally-buddy-launcher:hover { transform: translateY(-2px); box-shadow: 0 14px 38px rgb(11 31 24 / .22); }
+.rally-buddy-launcher > span { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; }
+.rally-buddy-launcher strong { font-size: 12.5px; }
+.rally-buddy-launcher small { margin-top: 3px; color: var(--color-mute); font-size: 10.5px; }
+.rally-buddy-panel { width: min(390px, calc(100vw - 24px)); max-height: min(650px, calc(100dvh - 112px)); display: flex; flex-direction: column; overflow: hidden; border: 1px solid #cfe1d5; border-radius: 22px; background: #fff; box-shadow: 0 22px 70px rgb(11 31 24 / .23); }
+.rally-buddy-panel > header { position: relative; min-height: 105px; display: flex; align-items: center; gap: 12px; padding: 14px 48px 14px 14px; overflow: hidden; background: linear-gradient(125deg, #edf6e8, #dcefd9); border-bottom: 1px solid #d6e7d6; }
+.rally-buddy-panel > header::after { content: ""; position: absolute; width: 150px; height: 150px; right: -65px; top: -80px; border: 1px solid rgb(29 104 93 / .14); border-radius: 50%; box-shadow: 0 0 0 24px rgb(29 104 93 / .04); }
+.rally-buddy-panel > header > div:nth-child(2) { position: relative; z-index: 1; }
+.rally-buddy-panel > header span { display: flex; align-items: center; gap: 4px; color: var(--color-eucalyptus); font-size: 9.5px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.rally-buddy-panel > header h2 { margin: 3px 0 0; font-size: 20px; line-height: 1.1; letter-spacing: -.025em; }
+.rally-buddy-panel > header p { margin: 4px 0 0; color: var(--color-mute); font-size: 11.5px; }
+.rally-buddy-panel > header > button { position: absolute; z-index: 2; right: 12px; top: 12px; display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid rgb(29 104 93 / .14); border-radius: 10px; background: rgb(255 255 255 / .72); color: var(--color-mute); }
+.rally-buddy-panel-avatar { width: 68px; height: 78px; display: grid; place-items: center; flex: none; }
+.rally-buddy-panel-avatar svg { width: 54px; height: 80px; filter: drop-shadow(0 8px 12px rgb(15 92 76 / .15)); }
+.rally-buddy-conversation { min-height: 190px; padding: 16px; overflow-y: auto; background: #fbfcf9; }
+.rally-buddy-intro > p, .rally-buddy-reply { margin: 0; color: #33453d; font-size: 13px; line-height: 1.55; }
+.rally-buddy-intro > div { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+.rally-buddy-intro button { padding: 7px 10px; border: 1px solid #d8e6d7; border-radius: 999px; background: white; color: var(--color-eucalyptus); font-size: 10.5px; font-weight: 700; }
+.rally-buddy-intro button:hover { border-color: #95b49f; background: #f1f7ed; }
+.rally-buddy-status { min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--color-mute); font-size: 12px; }
+.rally-buddy-error { padding: 15px; border: 1px solid #edcbc4; border-radius: 14px; background: #fff6f4; color: #7f3027; }
+.rally-buddy-error strong { font-size: 13px; }
+.rally-buddy-error p { margin: 5px 0 12px; font-size: 12px; line-height: 1.45; }
+.rally-buddy-error button, .rally-buddy-new-search { display: inline-flex; align-items: center; gap: 5px; color: var(--color-eucalyptus); font-size: 11px; font-weight: 800; }
+.rally-buddy-recommendations { display: grid; gap: 8px; margin-top: 13px; }
+.rally-buddy-recommendations > button { display: flex; flex-direction: column; gap: 5px; padding: 12px; border: 1px solid #dce8d9; border-radius: 14px; background: white; text-align: left; box-shadow: 0 1px 2px rgb(11 31 24 / .03); transition: border-color .15s ease, transform .15s ease; }
+.rally-buddy-recommendations > button:hover { transform: translateY(-1px); border-color: #99b9a3; }
+.rally-buddy-rec-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; color: var(--color-ink); font-size: 12.5px; font-weight: 800; }
+.rally-buddy-rec-title svg { color: var(--color-jade); }
+.rally-buddy-rec-reason { color: var(--color-mute); font-size: 11px; line-height: 1.45; }
+.rally-buddy-rec-meta { display: flex; flex-wrap: wrap; gap: 5px 11px; color: var(--color-eucalyptus); font-size: 9.5px; font-weight: 700; }
+.rally-buddy-rec-meta > span { display: inline-flex; align-items: center; gap: 3px; }
+.rally-buddy-empty { min-height: 125px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; margin-top: 10px; padding: 12px; border: 1px dashed #cddfcf; border-radius: 14px; color: var(--color-mute); font-size: 11.5px; text-align: center; }
+.rally-buddy-new-search { margin-top: 13px; }
+.rally-buddy-results > small { display: block; margin-top: 8px; color: var(--color-faint); font-size: 9.5px; }
+.rally-buddy-panel > form { display: flex; align-items: center; gap: 8px; padding: 12px; border-top: 1px solid var(--color-line); background: white; }
+.rally-buddy-panel > form input { min-width: 0; flex: 1; min-height: 42px; padding: 0 13px; border: 1.5px solid var(--color-line); border-radius: 999px; background: #fbfcf9; color: var(--color-ink); font-size: 12px; }
+.rally-buddy-panel > form input::placeholder { color: var(--color-faint); }
+.rally-buddy-panel > form button { width: 42px; height: 42px; display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--background-image-brand); color: white; }
+.rally-buddy-panel > form button:disabled { opacity: .45; }
+
+@media (max-width: 520px) {
+  .rally-buddy-chat { right: 12px; bottom: 12px; }
+  .rally-buddy-panel { max-height: calc(100dvh - 92px); }
+  .rally-buddy-launcher { min-height: 56px; padding-right: 13px; }
+  .rally-buddy-launcher small { display: none; }
+}
+
 /* ---------- Landing page ---------- */
 
 .landing-root {
@@ -427,4 +479,3 @@
 html {
   scroll-behavior: smooth;
 }
-

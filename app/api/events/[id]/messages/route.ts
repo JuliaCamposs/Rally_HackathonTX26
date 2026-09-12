@@ -14,6 +14,16 @@ export async function GET(
   const since = sinceRaw ? new Date(sinceRaw) : null;
 
   const currentUserId = await getCurrentUserId();
+  if (!currentUserId) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
+  const membership = await prisma.rsvp.findUnique({
+    where: { eventId_userId: { eventId: id, userId: currentUserId } },
+    select: { id: true },
+  });
+  if (!membership) {
+    return NextResponse.json({ error: "Join the event to view its chat" }, { status: 403 });
+  }
   const messages = await prisma.message.findMany({
     where: {
       eventId: id,
@@ -38,6 +48,9 @@ export async function POST(
 ) {
   const { id } = await params;
   const currentUserId = await getCurrentUserId();
+  if (!currentUserId) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
 
   const json = await request.json().catch(() => null);
   const parsed = postSchema.safeParse(json);

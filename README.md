@@ -16,6 +16,25 @@ pnpm db:setup               # prisma migrate + seed (9 events, real TTU coords)
 pnpm dev                    # http://localhost:4317
 ```
 
+## Auth0 and Rally Buddy setup
+
+Create an Auth0 **Regular Web Application**, then copy `.env.example` to
+`.env.local` and replace the Auth0 placeholders. Generate `AUTH0_SECRET` with
+`openssl rand -hex 32`. In the Auth0 application, allow:
+
+- Callback URL: `http://localhost:4317/auth/callback`
+- Logout URL: `http://localhost:4317`
+- Web origin: `http://localhost:4317`
+
+Enable the Google social connection and the Microsoft Account social
+connection configured for **Azure AD personal accounts**. Their default Auth0
+connection names are `google-oauth2` and `windowslive`; override the two
+connection environment variables if your tenant uses different names.
+
+Set `GEMINI_API_KEY` only in `.env.local` or your deployment's secret manager.
+The browser never receives the key. `GEMINI_MODEL` is optional and defaults to
+`gemini-2.5-flash`.
+
 Re-run `pnpm prisma db seed` at any time to reset the demo data — event times
 are seeded relative to "now" so the map always has live and upcoming events.
 
@@ -65,9 +84,15 @@ are also excluded from commits.
   recoloring); `components/rally-buddy.tsx` renders the Buddy avatar
   definition as a lightweight front-view SVG in loading/empty states. Plus
   Jakarta Sans is bundled locally in `public/fonts/` (OFL license included).
-- **Auth**: the current identity is a seeded demo user ("You"), resolved in
-  `lib/current-user.ts` via the `rally-uid` cookie — that function is the
-  single swap point for real auth.
+- **Auth**: Auth0 handles Google and personal Microsoft sign-in. Rally creates
+  a local profile keyed by the stable Auth0 subject on first login and restores
+  it on later sessions. `/app`, RSVPs, presence, points, and event chats require
+  authentication; chat messages are visible only to event members.
+- **Rally Buddy**: authenticated users can describe an activity in natural
+  language. The server sends Gemini only Rally's current event catalog,
+  validates returned IDs against that catalog, and rate-limits each profile to
+  six searches per minute. For multi-instance production deployments, replace
+  the in-memory limiter with a shared store such as Redis.
 - **Chat realtime**: the UI polls every 5s while a joined event is open. For
   instant delivery, swap `useEventDetail` in `lib/api.ts` for SSE, Pusher, or
   Supabase Realtime.

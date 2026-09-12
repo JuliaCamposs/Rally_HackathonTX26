@@ -8,6 +8,9 @@ export async function GET(
 ) {
   const { id } = await params;
   const currentUserId = await getCurrentUserId();
+  if (!currentUserId) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
   const event = await getEventDetail(id, currentUserId);
 
   if (!event) {

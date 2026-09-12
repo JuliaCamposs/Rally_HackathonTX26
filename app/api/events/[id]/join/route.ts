@@ -13,6 +13,9 @@ export async function POST(
 ) {
   const { id } = await params;
   const userId = await getCurrentUserId();
+  if (!userId) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
 
   const event = await prisma.event.findUnique({ where: { id }, select: { id: true } });
   if (!event) {
@@ -34,6 +37,9 @@ export async function DELETE(
 ) {
   const { id } = await params;
   const userId = await getCurrentUserId();
+  if (!userId) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
 
   await prisma.rsvp.deleteMany({ where: { eventId: id, userId } });
 

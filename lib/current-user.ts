@@ -1,13 +1,16 @@
-import { cookies } from "next/headers";
+import { auth0 } from "@/lib/auth0";
+import { prisma } from "@/lib/db";
+import { syncRallyProfile } from "@/lib/rally-profile";
 
-export const DEMO_USER_ID = "demo-user";
-const COOKIE_NAME = "rally-uid";
+export async function getCurrentRallyUser() {
+  const session = await auth0.getSession();
+  if (!session) return null;
+  return (
+    (await prisma.user.findUnique({ where: { auth0Id: session.user.sub } })) ??
+    syncRallyProfile(session.user)
+  );
+}
 
-/**
- * Resolves the current user id from the session cookie, falling back to the
- * seeded demo identity. This is the single swap point for real auth later.
- */
-export async function getCurrentUserId(): Promise<string> {
-  const store = await cookies();
-  return store.get(COOKIE_NAME)?.value ?? DEMO_USER_ID;
+export async function getCurrentUserId(): Promise<string | null> {
+  return (await getCurrentRallyUser())?.id ?? null;
 }

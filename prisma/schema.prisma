@@ -9,7 +9,10 @@ datasource db {
 
 model User {
   id          String     @id @default(cuid())
+  auth0Id     String?    @unique
   name        String
+  email       String?
+  avatarUrl   String?
   avatarColor String
   createdAt   DateTime   @default(now())
   rsvps       Rsvp[]
@@ -18,8 +21,8 @@ model User {
 }
 
 model Event {
-  id            String    @id @default(cuid())
-  slug          String    @unique
+  id            String     @id @default(cuid())
+  slug          String     @unique
   title         String
   description   String
   category      String // sports | study | social | workshops | clubs
@@ -32,7 +35,7 @@ model Event {
   photoPath     String
   organizerName String
   organizerRole String
-  createdAt     DateTime  @default(now())
+  createdAt     DateTime   @default(now())
   rsvps         Rsvp[]
   messages      Message[]
   presences     Presence[]
@@ -50,13 +53,13 @@ model Rsvp {
 }
 
 model Presence {
-  id          String   @id @default(cuid())
-  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId     String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
-  pointsAwarded Int    @default(50)
-  createdAt   DateTime @default(now())
+  id            String   @id @default(cuid())
+  event         Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId       String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  pointsAwarded Int      @default(50)
+  createdAt     DateTime @default(now())
 
   @@unique([eventId, userId])
 }

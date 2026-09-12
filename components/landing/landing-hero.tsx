@@ -1,14 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowRight, MapPin, Pause, Play } from "lucide-react";
 import { PhoneMockup } from "@/components/landing/phone-mockup";
 import styles from "./landing-hero.module.css";
 
 export function LandingHero() {
-  const router = useRouter();
   const [paused, setPaused] = useState(false);
 
   return (
@@ -35,15 +33,8 @@ export function LandingHero() {
           </p>
           <div className={styles.actions}>
             <Link
-              href="/app"
+              href="/login?returnTo=/app"
               className={styles.primaryLink}
-              onClick={(event) => {
-                if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-                  return;
-                }
-                event.preventDefault();
-                router.push("/app");
-              }}
             >
               Find your people <ArrowRight size={18} aria-hidden="true" />
             </Link>

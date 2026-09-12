@@ -53,6 +53,17 @@ export type EventListResponse = {
   total: number;
 };
 
+export type BuddyRecommendation = {
+  event: EventSummaryDto;
+  reason: string;
+};
+
+export type BuddyResponse = {
+  reply: string;
+  recommendations: BuddyRecommendation[];
+  remaining: number;
+};
+
 export const CATEGORY_LABEL: Record<EventCategory, string> = {
   sports: "Sports",
   study: "Study",

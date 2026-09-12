@@ -27,6 +27,9 @@ export async function GET(request: Request) {
   const { time, source, category } = parsed.data;
 
   const currentUserId = await getCurrentUserId();
+  if (!currentUserId) {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+  }
   const body = await listEvents(
     { time, source, categories: category },
     currentUserId,

@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { RallyApp } from "@/components/rally-app";
-import { getCurrentUserId } from "@/lib/current-user";
+import { getCurrentRallyUser } from "@/lib/current-user";
 import { getUserPoints, listEvents } from "@/lib/queries";
 import type { PointsDto } from "@/lib/points";
 import type { EventListResponse } from "@/lib/types";
@@ -52,10 +53,18 @@ function MapLoadError() {
 }
 
 export default async function CampusAppPage() {
-  const currentUserId = await getCurrentUserId();
-  const result = await loadCampus(currentUserId);
+  const user = await getCurrentRallyUser();
+  if (!user) redirect("/login?returnTo=/app");
+
+  const result = await loadCampus(user.id);
   if (!result.ok) {
     return <MapLoadError />;
   }
-  return <RallyApp initialData={result.data} initialPoints={result.points} />;
+  return (
+    <RallyApp
+      initialData={result.data}
+      initialPoints={result.points}
+      user={{ name: user.name, avatarUrl: user.avatarUrl, avatarColor: user.avatarColor }}
+    />
+  );
 }

@@ -82,6 +82,9 @@ export async function getEventDetail(
     },
   });
   if (!event) return null;
+  if (!event.rsvps.some((r) => r.userId === currentUserId)) {
+    event.messages = [];
+  }
   const presentIds = await presenceIdsFor(currentUserId);
   return toEventDetail(event, currentUserId, new Date(), presentIds);
 }
