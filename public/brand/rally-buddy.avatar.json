@@ -1,0 +1,206 @@
+{
+  "schema": "bible-strong/avatar-definition",
+  "schemaVersion": 1,
+  "name": "Rally buddy - exact eyes 28x65",
+  "body": {
+    "primary": {
+      "type": "sphere",
+      "width": 220,
+      "height": 220,
+      "depth": 140,
+      "roundness": 1
+    },
+    "nodes": [
+      {
+        "surface": {
+          "type": "cone",
+          "width": 184.39088914585776,
+          "height": 150,
+          "depth": 117.33965672918221,
+          "roundness": 0,
+          "morphRoundness": 0,
+          "tipRoundness": 0.65,
+          "baseRoundness": 0
+        },
+        "position": [
+          0,
+          135,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          180
+        ]
+      }
+    ]
+  },
+  "colors": {
+    "body": "#56c7a6",
+    "eyes": "#0b2d26"
+  },
+  "expressions": {
+    "neutral": {
+      "head": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "eyes": {
+        "left": {
+          "width": 26,
+          "height": 56,
+          "x": 0,
+          "y": 5,
+          "angle": 0
+        },
+        "right": {
+          "width": 26,
+          "height": 56,
+          "x": 0,
+          "y": 5,
+          "angle": 0
+        },
+        "spacing": 44
+      },
+      "perspective": 1,
+      "motion": {
+        "eyes": "none",
+        "body": "none"
+      }
+    },
+    "look-left": {
+      "head": {
+        "x": 0,
+        "y": -10,
+        "z": -4
+      },
+      "eyes": {
+        "left": {
+          "width": 26,
+          "height": 56,
+          "x": 0,
+          "y": 5,
+          "angle": 0
+        },
+        "right": {
+          "width": 26,
+          "height": 56,
+          "x": 0,
+          "y": 5,
+          "angle": 0
+        },
+        "spacing": 44
+      },
+      "perspective": 1,
+      "motion": {
+        "eyes": "none",
+        "body": "none"
+      }
+    },
+    "look-right": {
+      "head": {
+        "x": 0,
+        "y": 10,
+        "z": 4
+      },
+      "eyes": {
+        "left": {
+          "width": 26,
+          "height": 56,
+          "x": 0,
+          "y": 5,
+          "angle": 0
+        },
+        "right": {
+          "width": 26,
+          "height": 56,
+          "x": 0,
+          "y": 5,
+          "angle": 0
+        },
+        "spacing": 44
+      },
+      "perspective": 1,
+      "motion": {
+        "eyes": "none",
+        "body": "none"
+      }
+    }
+  },
+  "expressionOrder": [
+    "neutral",
+    "look-left",
+    "look-right"
+  ],
+  "animations": {
+    "blink": {
+      "playbackMode": "once",
+      "steps": [
+        {
+          "expression": "neutral",
+          "holdMs": 900,
+          "transitionMs": 0,
+          "transition": "smooth"
+        }
+      ],
+      "blink": {
+        "enabled": true,
+        "initialDelayMs": 250,
+        "minIntervalMs": 60000,
+        "maxIntervalMs": 60000,
+        "durationMs": 180
+      },
+      "metadata": {
+        "label": "Blink",
+        "description": "A single soft blink.",
+        "group": "Rally buddy"
+      }
+    },
+    "look-around": {
+      "playbackMode": "once",
+      "steps": [
+        {
+          "expression": "neutral",
+          "holdMs": 400,
+          "transitionMs": 300,
+          "transition": "smooth"
+        },
+        {
+          "expression": "look-left",
+          "holdMs": 650,
+          "transitionMs": 400,
+          "transition": "smooth"
+        },
+        {
+          "expression": "look-right",
+          "holdMs": 650,
+          "transitionMs": 400,
+          "transition": "smooth"
+        },
+        {
+          "expression": "neutral",
+          "holdMs": 500,
+          "transitionMs": 400,
+          "transition": "smooth"
+        }
+      ],
+      "blink": {
+        "enabled": true,
+        "initialDelayMs": 1200,
+        "minIntervalMs": 60000,
+        "maxIntervalMs": 60000,
+        "durationMs": 180
+      },
+      "metadata": {
+        "label": "Look around",
+        "description": "A curious glance from side to side before returning to center.",
+        "group": "Rally buddy"
+      }
+    }
+  },
+  "animationOrder": [
+    "blink",
+    "look-around"
+  ]
+}

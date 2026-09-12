@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="rally - a live campus map prototype for Texas Tech University.">
+<style>
+  :root { color-scheme: light; }
+  html, body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<title>Rally</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --lime:#a8dc6f;
+    --pistachio:#b2d98b;
+    --jade:#2e8b6f;
+    --eucalyptus:#1d685d;
+    --deep:#0f5c4c;
+    --ink:#0b1f18;
+    --muted:#62786d;
+    --faint:#8ba093;
+    --page:#f6faf3;
+    --white:#ffffff;
+    --line:#e2ebdc;
+    --line-soft:#eef4ea;
+    --ground:#eaf3e4;
+    --park:#d8ebc4;
+    --bldg:#dce7d5;
+    --bldg-line:#cbdac2;
+    --grad:linear-gradient(135deg,#a8dc6f 0%,#2e8b6f 52%,#0f5c4c 100%);
+    --shadow-sm:0 1px 2px rgba(11,31,24,.06),0 2px 8px rgba(11,31,24,.05);
+    --shadow-md:0 4px 14px rgba(11,31,24,.09),0 1px 3px rgba(11,31,24,.06);
+    --shadow-pin:0 3px 10px rgba(15,92,76,.28);
+    --r-lg:20px;
+    --r-md:14px;
+    --r-sm:10px;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    margin:0;
+    background:var(--page);
+    color:var(--ink);
+    font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:15px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  button{font:inherit;color:inherit;cursor:pointer}
+  :focus-visible{outline:2.5px solid var(--jade);outline-offset:2px;border-radius:6px}
+
+  .shell{
+    max-width:1440px;
+    margin:0 auto;
+    padding-inline:16px;
+    padding-block:16px 24px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    min-height:100vh;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .wordmark{
+    font-family:"Baloo 2",system-ui,sans-serif;
+    font-weight:800;
+    font-size:34px;
+    line-height:1;
+    letter-spacing:-.5px;
+    background:var(--grad);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    padding-right:2px;
+  }
+  .campus{
+    display:flex;align-items:center;gap:7px;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:6px 14px 6px 10px;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--eucalyptus);
+    box-shadow:var(--shadow-sm);
+  }
+  .campus svg{width:15px;height:15px;flex:none}
+  .spacer{flex:1}
+  .demo-chip{
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+    color:var(--muted);
+    background:var(--line-soft);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:5px 11px;
+  }
+  .me{
+    width:36px;height:36px;border-radius:50%;
+    background:var(--grad);
+    color:#fff;
+    display:grid;place-items:center;
+    font-weight:700;font-size:13px;
+    box-shadow:var(--shadow-sm);
+  }
+
+  /* ---------- filters ---------- */
+  .filters{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .seg{
+    display:flex;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:3px;
+    gap:2px;
+    box-shadow:var(--shadow-sm);
+  }
+  .seg button{
+    border:0;background:transparent;
+    padding:7px 15px;
+    border-radius:999px;
+    font-size:13.5px;font-weight:600;
+    color:var(--muted);
+    display:flex;align-items:center;gap:6px;
+    transition:background .16s,color .16s;
+  }
+  .seg button:hover{color:var(--eucalyptus)}
+  .seg button[aria-pressed="true"]{
+    background:var(--eucalyptus);
+    color:#fff;
+  }
+  .seg .livedot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--jade);
+    flex:none;
+  }
+  .seg button[aria-pressed="true"] .livedot{background:var(--lime)}
+
+  .cats{
+    display:flex;gap:7px;flex-wrap:wrap;
+  }
+  .cat{
+    border:1px solid var(--line);
+    background:var(--white);
+    border-radius:999px;
+    padding:6px 13px 6px 9px;
+    font-size:13px;font-weight:600;
+    color:var(--muted);
+    display:flex;align-items:center;gap:6px;
+    box-shadow:var(--shadow-sm);
+    transition:border-color .16s,color .16s,background .16s;
+  }
+  .cat svg{width:14px;height:14px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .cat:hover{color:var(--eucalyptus);border-color:var(--pistachio)}
+  .cat[aria-pressed="true"]{
+    background:var(--pistachio);
+    border-color:var(--pistachio);
+    color:var(--ink);
+  }
+
+  /* ---------- body grid ---------- */
+  .body{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 384px;
+    gap:14px;
+    align-items:start;
+    flex:1;
+  }
+
+  /* ---------- map ---------- */
+  .mapwrap{
+    background:var(--ground);
+    border:1px solid var(--line);
+    border-radius:var(--r-lg);
+    overflow:hidden;
+    position:relative;
+    display:grid;
+    place-items:center;
+    box-shadow:var(--shadow-sm);
+  }
+  .canvas{
+    position:relative;
+    width:100%;
+    aspect-ratio:4/3;
+  }
+  .canvas svg.base{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+  .pin{
+    position:absolute;
+    transform:translate(-50%,-50%);
+    border:0;background:transparent;padding:0;
+    width:44px;height:44px;
+    display:grid;place-items:center;
+    z-index:2;
+  }
+  .pin .body-shape{
+    width:36px;height:36px;
+    border-radius:13px 13px 13px 5px;
+    rotate:-45deg;
+    display:grid;place-items:center;
+    box-shadow:var(--shadow-pin);
+    transition:transform .18s cubic-bezier(.34,1.4,.5,1),box-shadow .18s;
+    position:relative;
+  }
+  .pin .body-shape svg{rotate:45deg;width:17px;height:17px;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .pin.live .body-shape{background:var(--grad);color:#fff;border:2px solid #fff}
+  .pin.later .body-shape{background:var(--white);color:var(--eucalyptus);border:2px solid var(--eucalyptus)}
+  .pin.official .body-shape::after{
+    content:"";position:absolute;inset:-6px;
+    border-radius:19px 19px 19px 8px;
+    border:2px solid var(--jade);
+    opacity:.45;
+  }
+  .pin:hover .body-shape{transform:scale(1.1)}
+  .pin[aria-pressed="true"] .body-shape{
+    transform:scale(1.22);
+    box-shadow:0 6px 20px rgba(15,92,76,.4);
+  }
+  .pin .count{
+    position:absolute;
+    right:-1px;bottom:-1px;
+    background:var(--white);
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:999px;
+    min-width:21px;
+    padding:1px 5px;
+    font-size:10.5px;
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+    line-height:1.5;
+    box-shadow:var(--shadow-sm);
+    z-index:3;
+  }
+  .pulse{
+    position:absolute;
+    width:36px;height:36px;border-radius:50%;
+    background:var(--jade);
+    opacity:.3;
+    animation:pulse 2.4s ease-out infinite;
+    z-index:0;
+  }
+  @keyframes pulse{
+    0%{transform:scale(.7);opacity:.34}
+    70%{transform:scale(1.9);opacity:0}
+    100%{transform:scale(1.9);opacity:0}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .pulse{animation:none;opacity:.16}
+    *{transition-duration:.01ms !important}
+  }
+
+  .legend{
+    position:absolute;
+    left:14px;bottom:14px;
+    background:rgba(255,255,255,.94);
+    border:1px solid var(--line);
+    border-radius:var(--r-md);
+    padding:10px 13px;
+    display:flex;flex-direction:column;gap:7px;
+    font-size:12px;font-weight:600;color:var(--muted);
+    box-shadow:var(--shadow-sm);
+    z-index:4;
+  }
+  .legend div{display:flex;align-items:center;gap:8px}
+  .lg-live{width:13px;height:13px;border-radius:5px 5px 5px 2px;rotate:-45deg;background:var(--grad);flex:none}
+  .lg-later{width:13px;height:13px;border-radius:5px 5px 5px 2px;rotate:-45deg;background:#fff;border:1.5px solid var(--eucalyptus);flex:none}
+  .lg-ring{width:13px;height:13px;border-radius:50%;border:2px solid var(--jade);opacity:.6;flex:none}
+
+  /* ---------- rail ---------- */
+  .rail{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:var(--r-lg);
+    box-shadow:var(--shadow-sm);
+    overflow:hidden;
+    display:flex;flex-direction:column;
+    max-height:calc(100vh - 190px);
+    position:sticky;
+    top:16px;
+  }
+  .rail-head{
+    padding:15px 17px 13px;
+    border-bottom:1px solid var(--line-soft);
+    display:flex;align-items:baseline;gap:8px;
+  }
+  .rail-head h2{
+    margin:0;font-size:16px;font-weight:700;letter-spacing:-.01em;
+    font-family:"Baloo 2",system-ui,sans-serif;
+  }
+  .rail-head span{font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums}
+  .rail-scroll{overflow-y:auto;padding:11px;display:flex;flex-direction:column;gap:9px}
+
+  .card{
+    text-align:left;
+    border:1px solid var(--line);
+    background:var(--white);
+    border-radius:var(--r-md);
+    padding:12px 13px;
+    display:flex;flex-direction:column;gap:8px;
+    transition:border-color .16s,box-shadow .16s,transform .16s;
+    width:100%;
+  }
+  .card:hover{border-color:var(--pistachio);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+  .card[aria-pressed="true"]{border-color:var(--jade);box-shadow:0 0 0 2px rgba(46,139,111,.16)}
+  .card-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .card h3{margin:0;font-size:14.5px;font-weight:700;line-height:1.3;letter-spacing:-.01em}
+  .card-meta{font-size:12.5px;color:var(--muted);display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+  .card-meta b{font-weight:600;color:var(--eucalyptus)}
+  .dot-sep{color:var(--line);font-weight:700}
+
+  .tag{
+    font-size:10.5px;font-weight:700;
+    letter-spacing:.05em;text-transform:uppercase;
+    padding:3px 8px;border-radius:999px;
+    white-space:nowrap;
+  }
+  .tag.tt{background:#e7f0ea;color:var(--deep);border:1px solid #d2e3d8}
+  .tag.comm{background:#f2f7ec;color:#5c7444;border:1px solid #e3edd8}
+  .tag.live{
+    background:var(--pistachio);color:var(--ink);
+    display:inline-flex;align-items:center;gap:5px;
+  }
+  .tag.live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--deep)}
+
+  .stack{display:flex;align-items:center;gap:8px}
+  .avs{display:flex}
+  .av{
+    width:25px;height:25px;border-radius:50%;
+    display:grid;place-items:center;
+    font-size:10px;font-weight:700;color:#fff;
+    border:2px solid var(--white);
+    margin-left:-8px;
+    flex:none;
+  }
+  .av:first-child{margin-left:0}
+  .av.you{background:var(--ink)}
+  .joined-n{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+  /* ---------- detail ---------- */
+  .detail{display:flex;flex-direction:column;height:100%;min-height:0}
+  .back{
+    display:flex;align-items:center;gap:7px;
+    border:0;background:transparent;
+    padding:13px 15px;
+    font-size:13px;font-weight:600;color:var(--muted);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .back:hover{color:var(--eucalyptus)}
+  .back svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .detail-scroll{overflow-y:auto;padding:15px 17px 17px;display:flex;flex-direction:column;gap:14px;flex:1;min-height:0}
+  .detail h2{
+    margin:0;font-size:21px;line-height:1.2;letter-spacing:-.02em;
+    font-family:"Baloo 2",system-ui,sans-serif;font-weight:700;
+    text-wrap:balance;
+  }
+  .badges{display:flex;gap:6px;flex-wrap:wrap}
+  .desc{margin:0;font-size:14px;color:#33453d;line-height:1.6}
+  .facts{display:flex;flex-direction:column;gap:1px;background:var(--line-soft);border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line-soft)}
+  .fact{display:flex;gap:10px;align-items:flex-start;background:var(--white);padding:10px 12px}
+  .fact svg{width:16px;height:16px;flex:none;margin-top:1px;stroke:var(--jade);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .fact-k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:1px}
+  .fact-v{font-size:13.5px;font-weight:600;color:var(--ink)}
+  .fact-v small{display:block;font-weight:500;font-size:12.5px;color:var(--muted)}
+
+  .joinrow{display:flex;flex-direction:column;gap:10px}
+  .btn{
+    border:0;border-radius:999px;
+    padding:13px 20px;
+    font-size:14.5px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    transition:filter .16s,background .16s,color .16s;
+    width:100%;
+  }
+  .btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .btn.join{background:var(--grad);color:#fff;box-shadow:0 3px 12px rgba(15,92,76,.24)}
+  .btn.join:hover{filter:brightness(1.06)}
+  .btn.leave{background:var(--white);color:var(--eucalyptus);border:1.5px solid var(--line)}
+  .btn.leave:hover{border-color:var(--eucalyptus)}
+
+  .chat{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line-soft);padding-top:14px}
+  .chat-h{display:flex;align-items:center;gap:8px}
+  .chat-h h3{margin:0;font-size:13.5px;font-weight:700;font-family:"Baloo 2",system-ui,sans-serif}
+  .chat-h span{font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums}
+  .locked{
+    background:var(--line-soft);
+    border:1px dashed var(--line);
+    border-radius:var(--r-md);
+    padding:18px 16px;
+    text-align:center;
+    font-size:13px;color:var(--muted);
+    display:flex;flex-direction:column;align-items:center;gap:7px;
+  }
+  .locked svg{width:19px;height:19px;stroke:var(--faint);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .msgs{display:flex;flex-direction:column;gap:11px}
+  .msg{display:flex;gap:9px}
+  .msg .av{margin-left:0}
+  .msg-b{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .msg-who{font-size:11.5px;font-weight:700;color:var(--eucalyptus)}
+  .msg-who time{font-weight:500;color:var(--faint);margin-left:6px;font-variant-numeric:tabular-nums}
+  .msg-t{
+    background:var(--line-soft);
+    border-radius:4px 13px 13px 13px;
+    padding:8px 12px;
+    font-size:13.5px;line-height:1.45;
+    color:#22332c;
+    overflow-wrap:anywhere;
+  }
+  .msg.mine .msg-t{background:#e6f2df;border-radius:13px 4px 13px 13px}
+  .composer{display:flex;gap:8px;align-items:center}
+  .composer input{
+    flex:1;min-width:0;
+    border:1.5px solid var(--line);
+    border-radius:999px;
+    padding:11px 15px;
+    font:inherit;font-size:13.5px;
+    background:var(--white);color:var(--ink);
+  }
+  .composer input::placeholder{color:var(--faint)}
+  .composer input:focus{outline:none;border-color:var(--jade)}
+  .send{
+    width:42px;height:42px;flex:none;
+    border:0;border-radius:50%;
+    background:var(--grad);color:#fff;
+    display:grid;place-items:center;
+  }
+  .send svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .send:hover{filter:brightness(1.06)}
+
+  .empty{
+    padding:34px 20px;text-align:center;color:var(--muted);font-size:13.5px;
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+  }
+  .empty button{
+    border:1.5px solid var(--line);background:var(--white);
+    border-radius:999px;padding:8px 16px;font-size:13px;font-weight:600;color:var(--eucalyptus);
+  }
+  .empty button:hover{border-color:var(--eucalyptus)}
+
+  /* ---------- mobile ---------- */
+  @media (max-width:900px){
+    .body{grid-template-columns:1fr}
+    .rail{
+      position:static;
+      max-height:none;
+    }
+    .rail-scroll{max-height:420px}
+    .detail-scroll{max-height:none;overflow:visible}
+    .canvas{aspect-ratio:1/1}
+  }
+  @media (max-width:520px){
+    .shell{padding-block:12px 20px}
+    .wordmark{font-size:29px}
+    .filters{gap:8px}
+    .seg button{padding:7px 12px;font-size:13px}
+    .legend{left:10px;bottom:10px;padding:8px 10px;font-size:11px;gap:6px}
+    .canvas{aspect-ratio:3/4}
+  }
+</style>
+</head>
+<body>
+
+
+<div class="shell">
+  <header>
+    <div class="wordmark">rally</div>
+    <div class="campus">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14.5s5-4.2 5-8a5 5 0 0 0-10 0c0 3.8 5 8 5 8Z"/><circle cx="8" cy="6.4" r="1.9"/></svg>
+      Texas Tech University
+    </div>
+    <div class="spacer"></div>
+    <span class="demo-chip">Demo data</span>
+    <div class="me" title="You">JC</div>
+  </header>
+
+  <div class="filters">
+    <div class="seg" role="group" aria-label="Filter by time">
+      <button id="t-now" data-time="now" aria-pressed="false"><span class="livedot"></span>Now</button>
+      <button id="t-later" data-time="later" aria-pressed="false">Later</button>
+      <button id="t-all" data-time="all" aria-pressed="true">All times</button>
+    </div>
+    <div class="seg" role="group" aria-label="Filter by event type">
+      <button id="s-all" data-source="all" aria-pressed="true">All events</button>
+      <button id="s-official" data-source="official" aria-pressed="false">Texas Tech</button>
+      <button id="s-community" data-source="community" aria-pressed="false">Community</button>
+    </div>
+    <div class="cats" id="cats" role="group" aria-label="Filter by category"></div>
+  </div>
+
+  <div class="body">
+    <div class="mapwrap">
+      <div class="canvas" id="canvas">
+        <svg class="base" viewBox="0 0 800 600" aria-label="Stylized map of the Texas Tech University campus">
+          <rect width="800" height="600" fill="#eaf3e4"/>
+
+          <!-- green spaces -->
+          <rect x="55" y="492" width="235" height="84" rx="34" fill="#d8ebc4"/>
+          <rect x="600" y="440" width="170" height="120" rx="30" fill="#d8ebc4"/>
+          <circle cx="380" cy="300" r="86" fill="#d8ebc4"/>
+
+          <!-- roads -->
+          <g stroke="#ffffff" stroke-linecap="round" fill="none">
+            <path d="M0 150 H800" stroke-width="17"/>
+            <path d="M0 470 H800" stroke-width="17"/>
+            <path d="M0 300 H800" stroke-width="25"/>
+            <path d="M380 0 V600" stroke-width="23"/>
+            <path d="M170 0 V600" stroke-width="15"/>
+            <path d="M600 0 V600" stroke-width="15"/>
+          </g>
+          <circle cx="380" cy="300" r="62" fill="none" stroke="#ffffff" stroke-width="21"/>
+          <circle cx="380" cy="300" r="35" fill="#cfe6bb"/>
+
+          <!-- buildings -->
+          <g fill="#dce7d5" stroke="#cbdac2" stroke-width="1.5">
+            <rect x="225" y="52" width="140" height="62" rx="6"/>
+            <rect x="614" y="38" width="152" height="80" rx="12"/>
+            <rect x="214" y="184" width="126" height="76" rx="6"/>
+            <rect x="420" y="188" width="136" height="73" rx="6"/>
+            <rect x="630" y="184" width="130" height="72" rx="6"/>
+            <rect x="194" y="344" width="136" height="68" rx="6"/>
+            <rect x="424" y="348" width="106" height="58" rx="6"/>
+            <rect x="556" y="344" width="90" height="58" rx="6"/>
+            <rect x="60" y="196" width="82" height="64" rx="6"/>
+            <rect x="60" y="344" width="82" height="58" rx="6"/>
+          </g>
+
+          <!-- trees -->
+          <g fill="#c3dfa8">
+            <circle cx="90" cy="510" r="9"/><circle cx="120" cy="536" r="7"/><circle cx="158" cy="506" r="8"/>
+            <circle cx="205" cy="534" r="7"/><circle cx="246" cy="508" r="9"/>
+            <circle cx="646" cy="482" r="9"/><circle cx="686" cy="512" r="8"/><circle cx="726" cy="480" r="7"/>
+            <circle cx="700" cy="546" r="9"/><circle cx="636" cy="536" r="7"/>
+            <circle cx="330" cy="252" r="7"/><circle cx="440" cy="330" r="7"/>
+            <circle cx="322" cy="330" r="8"/><circle cx="436" cy="254" r="8"/>
+          </g>
+
+          <!-- labels -->
+          <g font-family="Plus Jakarta Sans, sans-serif" font-size="11.5" font-weight="600" fill="#7d9184" text-anchor="middle" letter-spacing=".2">
+            <text x="295" y="88">Rec Center</text>
+            <text x="690" y="83">Jones AT&amp;T Stadium</text>
+            <text x="277" y="227">University Library</text>
+            <text x="488" y="230">Student Union</text>
+            <text x="695" y="225">Engineering Center</text>
+            <text x="262" y="383">Media &amp; Comm</text>
+            <text x="477" y="382">Holden Hall</text>
+            <text x="601" y="378">Chemistry</text>
+            <text x="101" y="233">Art Bldg</text>
+            <text x="101" y="378">Music</text>
+            <text x="172" y="540">Urbanovsky Park</text>
+            <text x="685" y="440">Memorial Grove</text>
+            <text x="380" y="304" font-size="10.5" fill="#6d8a72">MEMORIAL</text>
+            <text x="380" y="317" font-size="10.5" fill="#6d8a72">CIRCLE</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="legend">
+        <div><span class="lg-live"></span> Happening now</div>
+        <div><span class="lg-later"></span> Starting later</div>
+        <div><span class="lg-ring"></span> Texas Tech org event</div>
+      </div>
+    </div>
+
+    <aside class="rail" id="rail"></aside>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var ICONS = {
+    sports:'<circle cx="8" cy="8" r="6.2"/><path d="M2.2 5.4c3.4 1.7 8.2 1.7 11.6 0M2.2 10.6c3.4-1.7 8.2-1.7 11.6 0M8 1.8v12.4"/>',
+    study:'<path d="M8 4.6C6.9 3.4 5.2 3 2.6 3v9.2c2.6 0 4.3.4 5.4 1.6 1.1-1.2 2.8-1.6 5.4-1.6V3c-2.6 0-4.3.4-5.4 1.6Z"/><path d="M8 4.6v9.2"/>',
+    social:'<circle cx="6" cy="5.8" r="2.3"/><path d="M1.9 13.4c0-2.2 1.8-3.6 4.1-3.6s4.1 1.4 4.1 3.6"/><circle cx="11.6" cy="6.8" r="1.8"/><path d="M11.6 10c1.6 0 2.7 1 2.7 2.6"/>',
+    workshops:'<path d="M10.4 2.3a3.4 3.4 0 0 0-3.1 4.7l-4.5 4.5a1.6 1.6 0 0 0 2.3 2.3l4.5-4.5a3.4 3.4 0 0 0 4.4-4.4l-2 2-1.7-1.7 2-2a3.4 3.4 0 0 0-1.9-.9Z"/>',
+    clubs:'<path d="M3.6 14.2V2.4M3.6 3h8.8l-2.1 2.9 2.1 2.9H3.6"/>'
+  };
+
+  var CAT_LABEL = {sports:'Sports',study:'Study',social:'Social',workshops:'Workshops',clubs:'Clubs'};
+
+  var AV_COLORS = ['#2e8b6f','#1d685d','#5c8a3a','#0f5c4c','#3f7f66','#6b9b45','#256b5c','#4a8f5e'];
+
+  function initials(n){
+    var p = n.trim().split(/\s+/);
+    return (p[0][0] + (p[1] ? p[1][0] : '')).toUpperCase();
+  }
+  function avColor(n){
+    var s = 0;
+    for (var i=0;i<n.length;i++) s += n.charCodeAt(i);
+    return AV_COLORS[s % AV_COLORS.length];
+  }
+  function av(name, cls){
+    if (name === 'You') return '<span class="av you" title="You">You</span>';
+    return '<span class="av' + (cls?' '+cls:'') + '" style="background:' + avColor(name) + '" title="' + name + '">' + initials(name) + '</span>';
+  }
+
+  var EVENTS = [
+    {
+      id:'volleyball', title:'Pickup Volleyball', source:'community', category:'sports', live:true,
+      x:37.5, y:17.5, place:'Rec Center Sand Courts', time:'3:40 – 5:30 PM', when:'Started 20 min ago',
+      organizer:'Maya Ruiz', orgRole:'Student · Kinesiology',
+      desc:'Casual 4v4 on the sand courts. We rotate teams every game so nobody sits out long. All skill levels — half of us learned last semester. Ball is covered, bring water.',
+      people:['Maya Ruiz','Devon Clark','Priya Nair','Sam Okafor','Iris Lang','Tyler Boone','Ana Guzman'],
+      msgs:[
+        {who:'Maya Ruiz', t:'3:22 PM', m:'Courts 2 and 3 are ours till 5:30 — just claimed them'},
+        {who:'Tyler Boone', t:'3:31 PM', m:'omw, five min out'},
+        {who:'Priya Nair', t:'3:44 PM', m:'we have 7, need one more for even teams'},
+        {who:'Maya Ruiz', t:'3:52 PM', m:'anyone coming — we are the loud group closest to the parking lot'}
+      ]
+    },
+    {
+      id:'cs-study', title:'CS Study Group — Finals Prep', source:'community', category:'study', live:true,
+      x:33.1, y:34.2, place:'University Library, 3rd Floor East', time:'2:00 – 6:00 PM', when:'Started 2 hr ago',
+      organizer:'Devon Clark', orgRole:'Student · Computer Science',
+      desc:'Working through the CS 2413 practice exam together. We grabbed the big table by the windows. Come and go as you need — someone is always here to explain a problem.',
+      people:['Devon Clark','Iris Lang','Noah Whitfield','Sasha Kim','Ben Ortiz','Lena Park','Amir Haddad','Grace Yun','Owen Diaz','Rita Alvarez','Kai Mensah','Jules Weber'],
+      msgs:[
+        {who:'Devon Clark', t:'2:05 PM', m:'Big table by the east windows, look for the whiteboard'},
+        {who:'Sasha Kim', t:'2:48 PM', m:'q7 on the practice exam is wrong in the answer key btw'},
+        {who:'Lena Park', t:'3:10 PM', m:'confirmed, it should be O(n log n) not O(n)'},
+        {who:'Devon Clark', t:'3:38 PM', m:'we are here till 6, table fits ~4 more'}
+      ]
+    },
+    {
+      id:'acm', title:'ACM General Meeting', source:'official', category:'clubs', live:false,
+      x:86.5, y:32, place:'Engineering Center, Room 101', time:'6:00 – 7:15 PM', when:'Starts in 2 hr',
+      organizer:'ACM at Texas Tech', orgRole:'Registered student organization',
+      desc:'Monthly general meeting. This month: a walkthrough of the spring hackathon rules, officer elections, and a short talk from an alum now at a robotics startup in Austin. Pizza at 6.',
+      people:['Noah Whitfield','Grace Yun','Amir Haddad','Rita Alvarez','Kai Mensah','Owen Diaz','Sasha Kim','Ben Ortiz','Lena Park','Jules Weber','Iris Lang','Devon Clark','Maya Ruiz','Tyler Boone','Ana Guzman','Priya Nair','Sam Okafor','Hana Fischer','Leo Vance','Mei Tanaka','Cole Bryant','Nadia Petrov','Ravi Shah','Elena Moss','Finn Doyle','Zara Ahmed','Otto Lind','Bea Carver','Ines Rojas','Marcus Webb','Yuki Sato','Dara Nolan','Theo Blake','Anya Volkov'],
+      msgs:[
+        {who:'ACM at Texas Tech', t:'11:02 AM', m:'Room changed to EC 101 — bigger room, we outgrew 204'},
+        {who:'Grace Yun', t:'12:15 PM', m:'are officer nominations still open?'},
+        {who:'ACM at Texas Tech', t:'12:31 PM', m:'Yes, until we start voting at 6:30. Nominate from the floor.'},
+        {who:'Kai Mensah', t:'1:40 PM', m:'is the alum talk being recorded?'}
+      ]
+    },
+    {
+      id:'resume', title:'Résumé Workshop', source:'official', category:'workshops', live:true,
+      x:58.8, y:34.7, place:'Student Union, Room 205', time:'3:00 – 5:00 PM', when:'Started 1 hr ago',
+      organizer:'University Career Center', orgRole:'Campus department',
+      desc:'Drop-in résumé review with career advisors. Bring a printed copy or a laptop. Advisors are working one-on-one, typical wait is under ten minutes. Tailored feedback for engineering and business tracks.',
+      people:['Hana Fischer','Leo Vance','Mei Tanaka','Cole Bryant','Nadia Petrov','Ravi Shah','Elena Moss','Finn Doyle','Zara Ahmed','Otto Lind','Bea Carver','Ines Rojas','Marcus Webb','Yuki Sato','Dara Nolan','Theo Blake','Anya Volkov','Grace Yun','Owen Diaz','Rita Alvarez','Ben Ortiz'],
+      msgs:[
+        {who:'University Career Center', t:'2:52 PM', m:'Doors open, three advisors in today'},
+        {who:'Leo Vance', t:'3:26 PM', m:'walked in at 3:20, was seen in about 5 min'},
+        {who:'Nadia Petrov', t:'4:02 PM', m:'do they review LinkedIn too or just the résumé?'},
+        {who:'University Career Center', t:'4:09 PM', m:'Both — bring your profile up on your phone and we will go through it.'}
+      ]
+    },
+    {
+      id:'watch', title:'Watch Party: Tech vs. Baylor', source:'community', category:'social', live:false,
+      x:66.5, y:41.3, place:'Student Union Lounge, ground floor', time:'7:00 – 10:00 PM', when:'Starts in 3 hr',
+      organizer:'Sam Okafor', orgRole:'Student · Marketing',
+      desc:'Big screen in the SUB lounge is free tonight. Getting there early to hold the couches. Wear red and black. Someone said they are bringing a speaker for the pregame.',
+      people:['Sam Okafor','Ana Guzman','Tyler Boone','Cole Bryant','Marcus Webb','Finn Doyle','Theo Blake','Bea Carver','Yuki Sato','Zara Ahmed','Otto Lind','Dara Nolan','Ines Rojas','Elena Moss','Ravi Shah','Mei Tanaka','Leo Vance','Hana Fischer'],
+      msgs:[
+        {who:'Sam Okafor', t:'12:40 PM', m:'Getting there at 6:30 to grab the couch section'},
+        {who:'Ana Guzman', t:'1:12 PM', m:'i can bring the speaker for pregame'},
+        {who:'Cole Bryant', t:'2:20 PM', m:'is the sub lounge the one with the big screen or the small one'},
+        {who:'Sam Okafor', t:'2:24 PM', m:'Big one, ground floor past the food court'}
+      ]
+    },
+    {
+      id:'salsa', title:'Salsa Night on the Circle', source:'official', category:'social', live:false,
+      x:47.5, y:50, place:'Memorial Circle lawn', time:'8:00 – 10:30 PM', when:'Starts in 4 hr',
+      organizer:'Hispanic Student Society', orgRole:'Registered student organization',
+      desc:'Outdoor salsa under the lights. Free beginner lesson at 8, open dancing from 8:45. No partner and no experience needed — the lesson starts from the basic step. Sound system and floor provided.',
+      people:['Ines Rojas','Ana Guzman','Rita Alvarez','Elena Moss','Zara Ahmed','Yuki Sato','Mei Tanaka','Nadia Petrov','Bea Carver','Dara Nolan','Anya Volkov','Hana Fischer','Grace Yun','Priya Nair','Iris Lang','Lena Park','Sasha Kim','Maya Ruiz','Theo Blake','Marcus Webb','Finn Doyle','Otto Lind','Ravi Shah','Leo Vance','Cole Bryant','Owen Diaz'],
+      msgs:[
+        {who:'Hispanic Student Society', t:'10:15 AM', m:'Forecast is clear and 72 tonight — we are on'},
+        {who:'Elena Moss', t:'11:48 AM', m:'do i need to bring a partner?'},
+        {who:'Hispanic Student Society', t:'11:55 AM', m:'No — we rotate partners during the lesson. Come alone, you will not be alone long.'},
+        {who:'Yuki Sato', t:'1:30 PM', m:'what shoes work best on the grass'}
+      ]
+    },
+    {
+      id:'chess', title:'Chess in the Quad', source:'community', category:'social', live:true,
+      x:40.6, y:58.7, place:'Memorial Circle, south lawn', time:'3:00 – 6:00 PM', when:'Started 1 hr ago',
+      organizer:'Otto Lind', orgRole:'Student · Philosophy',
+      desc:'Three boards set up under the trees on the south side of the circle. Winner stays on. Beginners genuinely welcome — half the games today have been teaching games.',
+      people:['Otto Lind','Theo Blake','Anya Volkov','Ben Ortiz','Jules Weber'],
+      msgs:[
+        {who:'Otto Lind', t:'3:04 PM', m:'Three boards out, south side under the big trees'},
+        {who:'Theo Blake', t:'3:35 PM', m:'lost twice already, staying anyway'},
+        {who:'Anya Volkov', t:'4:11 PM', m:'one board free right now if anyone is walking by'}
+      ]
+    },
+    {
+      id:'run', title:'Sunset Run — 3 Miles', source:'community', category:'sports', live:false,
+      x:18.8, y:86.7, place:'Urbanovsky Park, north entrance', time:'6:30 – 7:30 PM', when:'Starts in 2 hr',
+      organizer:'Iris Lang', orgRole:'Student · Nursing',
+      desc:'Easy three miles on the park loop at conversational pace, roughly a ten-minute mile. We regroup at every turn so nobody gets dropped. Stretching after by the north gate.',
+      people:['Iris Lang','Priya Nair','Devon Clark','Ravi Shah','Finn Doyle','Bea Carver','Dara Nolan','Marcus Webb','Yuki Sato'],
+      msgs:[
+        {who:'Iris Lang', t:'9:30 AM', m:'Meeting at the north entrance sign at 6:25'},
+        {who:'Ravi Shah', t:'11:02 AM', m:'what pace are we running'},
+        {who:'Iris Lang', t:'11:14 AM', m:'~10 min/mile, and we regroup at every turn. Nobody gets dropped.'},
+        {who:'Bea Carver', t:'1:55 PM', m:'first time joining, is 3 miles doable if i normally do 2'}
+      ]
+    },
+    {
+      id:'photo', title:'Golden Hour Photo Walk', source:'official', category:'clubs', live:false,
+      x:31.3, y:66.3, place:'Media & Communication, front steps', time:'5:30 – 7:00 PM', when:'Starts in 1 hr',
+      organizer:'Texas Tech Photo Club', orgRole:'Registered student organization',
+      desc:'Ninety-minute walk shooting the west side of campus in golden hour light. Any camera counts, phones included. Officers will help with manual settings as we go. We end at the Circle for the sunset.',
+      people:['Mei Tanaka','Hana Fischer','Zara Ahmed','Nadia Petrov','Elena Moss','Grace Yun','Jules Weber','Owen Diaz','Kai Mensah','Sasha Kim','Lena Park'],
+      msgs:[
+        {who:'Texas Tech Photo Club', t:'9:00 AM', m:'Meeting on the front steps at 5:25, walking at 5:30 sharp'},
+        {who:'Hana Fischer', t:'10:40 AM', m:'phone cameras ok? do not own a dslr'},
+        {who:'Texas Tech Photo Club', t:'10:47 AM', m:'Completely fine. Half the club shoots on phones.'},
+        {who:'Kai Mensah', t:'2:15 PM', m:'route posted anywhere? trying to catch up late'}
+      ]
+    }
+  ];
+
+  var state = {
+    time:'all',
+    source:'all',
+    cats:{sports:false, study:false, social:false, workshops:false, clubs:false},
+    selected:null,
+    joined:{},
+    extraMsgs:{}
+  };
+
+  var canvas = document.getElementById('canvas');
+  var rail = document.getElementById('rail');
+  var catsEl = document.getElementById('cats');
+
+  function iconSvg(cat, cls){
+    return '<svg class="' + (cls||'') + '" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + ICONS[cat] + '</svg>';
+  }
+
+  function anyCat(){
+    for (var k in state.cats) if (state.cats[k]) return true;
+    return false;
+  }
+
+  function visible(){
+    return EVENTS.filter(function(e){
+      if (state.time === 'now' && !e.live) return false;
+      if (state.time === 'later' && e.live) return false;
+      if (state.source !== 'all' && e.source !== state.source) return false;
+      if (anyCat() && !state.cats[e.category]) return false;
+      return true;
+    });
+  }
+
+  function joinCount(e){
+    return e.people.length + (state.joined[e.id] ? 1 : 0);
+  }
+
+  // ---------- filter chips ----------
+  Object.keys(CAT_LABEL).forEach(function(cat){
+    var b = document.createElement('button');
+    b.className = 'cat';
+    b.id = 'cat-' + cat;
+    b.type = 'button';
+    b.setAttribute('aria-pressed','false');
+    b.innerHTML = iconSvg(cat) + CAT_LABEL[cat];
+    b.addEventListener('click', function(){
+      state.cats[cat] = !state.cats[cat];
+      b.setAttribute('aria-pressed', state.cats[cat] ? 'true' : 'false');
+      render();
+    });
+    catsEl.appendChild(b);
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-time]'), function(b){
+    b.addEventListener('click', function(){
+      state.time = b.dataset.time;
+      Array.prototype.forEach.call(document.querySelectorAll('[data-time]'), function(o){
+        o.setAttribute('aria-pressed', o === b ? 'true' : 'false');
+      });
+      render();
+    });
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-source]'), function(b){
+    b.addEventListener('click', function(){
+      state.source = b.dataset.source;
+      Array.prototype.forEach.call(document.querySelectorAll('[data-source]'), function(o){
+        o.setAttribute('aria-pressed', o === b ? 'true' : 'false');
+      });
+      render();
+    });
+  });
+
+  function clearFilters(){
+    state.time = 'all'; state.source = 'all';
+    Object.keys(state.cats).forEach(function(k){ state.cats[k] = false; });
+    document.getElementById('t-all').setAttribute('aria-pressed','true');
+    document.getElementById('t-now').setAttribute('aria-pressed','false');
+    document.getElementById('t-later').setAttribute('aria-pressed','false');
+    document.getElementById('s-all').setAttribute('aria-pressed','true');
+    document.getElementById('s-official').setAttribute('aria-pressed','false');
+    document.getElementById('s-community').setAttribute('aria-pressed','false');
+    Object.keys(CAT_LABEL).forEach(function(c){
+      document.getElementById('cat-' + c).setAttribute('aria-pressed','false');
+    });
+    render();
+  }
+
+  // ---------- pins ----------
+  function renderPins(){
+    Array.prototype.forEach.call(canvas.querySelectorAll('.pin'), function(p){ p.remove(); });
+    Array.prototype.forEach.call(canvas.querySelectorAll('.pulse'), function(p){ p.remove(); });
+
+    visible().forEach(function(e){
+      if (e.live){
+        var pw = document.createElement('span');
+        pw.className = 'pulse';
+        pw.style.left = e.x + '%';
+        pw.style.top = e.y + '%';
+        pw.style.transform = 'translate(-50%,-50%)';
+        pw.style.position = 'absolute';
+        canvas.appendChild(pw);
+      }
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'pin ' + (e.live ? 'live' : 'later') + (e.source === 'official' ? ' official' : '');
+      b.style.left = e.x + '%';
+      b.style.top = e.y + '%';
+      b.setAttribute('aria-pressed', state.selected === e.id ? 'true' : 'false');
+      b.setAttribute('aria-label', e.title + ', ' + e.place + ', ' + (e.live ? 'happening now' : e.when) + ', ' + joinCount(e) + ' joined');
+      b.innerHTML = '<span class="body-shape">' + iconSvg(e.category) + '</span><span class="count">' + joinCount(e) + '</span>';
+      b.addEventListener('click', function(){
+        state.selected = (state.selected === e.id) ? null : e.id;
+        render();
+      });
+      canvas.appendChild(b);
+    });
+  }
+
+  // ---------- rail ----------
+  function tagsFor(e){
+    var t = '<span class="tag ' + (e.source === 'official' ? 'tt">Texas Tech Events' : 'comm">Community Event') + '</span>';
+    if (e.live) t += '<span class="tag live">Now</span>';
+    return t;
+  }
+
+  function stackFor(e, max){
+    var list = e.people.slice(0, max);
+    var html = '<span class="avs">';
+    if (state.joined[e.id]) html += av('You');
+    list.forEach(function(p){ html += av(p); });
+    html += '</span>';
+    var n = joinCount(e);
+    html += '<span class="joined-n">' + n + ' joined</span>';
+    return '<span class="stack">' + html + '</span>';
+  }
+
+  function renderList(){
+    var list = visible();
+    var html = '<div class="rail-head"><h2>Happening at Texas Tech</h2><span>' + list.length + ' of ' + EVENTS.length + '</span></div>';
+
+    if (!list.length){
+      html += '<div class="empty"><span>No events match these filters right now.</span><button type="button" id="clearf">Clear filters</button></div>';
+      rail.innerHTML = html;
+      document.getElementById('clearf').addEventListener('click', clearFilters);
+      return;
+    }
+
+    html += '<div class="rail-scroll">';
+    list.forEach(function(e){
+      html += '<button type="button" class="card" data-id="' + e.id + '" aria-pressed="false">' +
+        '<span class="card-top">' + tagsFor(e) + '</span>' +
+        '<h3>' + e.title + '</h3>' +
+        '<span class="card-meta">' + iconSvg(e.category, 'cat-i') + '<b>' + (e.live ? e.when : e.when) + '</b><span class="dot-sep">·</span>' + e.place + '</span>' +
+        stackFor(e, 5) +
+      '</button>';
+    });
+    html += '</div>';
+    rail.innerHTML = html;
+
+    Array.prototype.forEach.call(rail.querySelectorAll('.card'), function(c){
+      c.addEventListener('click', function(){
+        state.selected = c.dataset.id;
+        render();
+      });
+    });
+  }
+
+  function msgsFor(e){
+    return e.msgs.concat(state.extraMsgs[e.id] || []);
+  }
+
+  function renderDetail(e){
+    var joined = !!state.joined[e.id];
+    var all = msgsFor(e);
+
+    var html = '<div class="detail">' +
+      '<button type="button" class="back" id="back"><svg viewBox="0 0 16 16"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg>All events</button>' +
+      '<div class="detail-scroll">' +
+        '<div class="badges">' + tagsFor(e) + '</div>' +
+        '<h2>' + e.title + '</h2>' +
+        '<p class="desc">' + e.desc + '</p>' +
+        '<div class="facts">' +
+          '<div class="fact"><svg viewBox="0 0 16 16"><path d="M8 14.5s5-4.2 5-8a5 5 0 0 0-10 0c0 3.8 5 8 5 8Z"/><circle cx="8" cy="6.4" r="1.9"/></svg>' +
+            '<span><span class="fact-k">Where</span><span class="fact-v">' + e.place + '</span></span></div>' +
+          '<div class="fact"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2"/><path d="M8 4.4V8l2.4 1.6"/></svg>' +
+            '<span><span class="fact-k">When</span><span class="fact-v">' + e.time + '<small>' + e.when + '</small></span></span></div>' +
+          '<div class="fact">' + (e.source === 'official'
+              ? '<svg viewBox="0 0 16 16"><path d="M8 1.6 2.4 4v4c0 3.2 2.3 5.6 5.6 6.4 3.3-.8 5.6-3.2 5.6-6.4V4Z"/><path d="M5.9 8.1 7.4 9.6l3-3.2"/></svg>'
+              : '<svg viewBox="0 0 16 16"><circle cx="8" cy="5.4" r="2.6"/><path d="M2.8 13.6c0-2.7 2.3-4.4 5.2-4.4s5.2 1.7 5.2 4.4"/></svg>') +
+            '<span><span class="fact-k">Organized by</span><span class="fact-v">' + e.organizer + '<small>' + e.orgRole + '</small></span></span></div>' +
+        '</div>' +
+        '<div class="joinrow">' +
+          stackFor(e, 8) +
+          (joined
+            ? '<button type="button" class="btn leave" id="joinbtn"><svg viewBox="0 0 16 16"><path d="M3.5 8.2 6.4 11l6-6.4"/></svg>You are going · Leave</button>'
+            : '<button type="button" class="btn join" id="joinbtn"><svg viewBox="0 0 16 16"><path d="M8 3.2v9.6M3.2 8h9.6"/></svg>Join this event</button>') +
+        '</div>' +
+        '<div class="chat">' +
+          '<div class="chat-h"><h3>Group chat</h3><span>' + all.length + ' messages</span></div>' +
+          (joined
+            ? '<div class="msgs" id="msgs">' + all.map(function(m){
+                var mine = m.who === 'You';
+                return '<div class="msg' + (mine ? ' mine' : '') + '">' + av(m.who) +
+                  '<div class="msg-b"><span class="msg-who">' + m.who + '<time>' + m.t + '</time></span>' +
+                  '<span class="msg-t">' + m.m.replace(/</g,'&lt;') + '</span></div></div>';
+              }).join('') + '</div>' +
+              '<form class="composer" id="composer"><input id="msgin" type="text" autocomplete="off" placeholder="Message the group…" aria-label="Message the group">' +
+              '<button type="submit" class="send" aria-label="Send message"><svg viewBox="0 0 16 16"><path d="M2.4 8h10.4M8.6 3.8 12.8 8l-4.2 4.2"/></svg></button></form>'
+            : '<div class="locked"><svg viewBox="0 0 16 16"><rect x="3.2" y="7" width="9.6" height="6.6" rx="2"/><path d="M5.6 7V5.2a2.4 2.4 0 0 1 4.8 0V7"/></svg>' +
+              '<span>Join to open the group chat with ' + joinCount(e) + ' people.</span></div>') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+    rail.innerHTML = html;
+
+    document.getElementById('back').addEventListener('click', function(){
+      state.selected = null;
+      render();
+    });
+
+    document.getElementById('joinbtn').addEventListener('click', function(){
+      state.joined[e.id] = !state.joined[e.id];
+      render();
+    });
+
+    var form = document.getElementById('composer');
+    if (form){
+      form.addEventListener('submit', function(ev){
+        ev.preventDefault();
+        var input = document.getElementById('msgin');
+        var val = input.value.trim();
+        if (!val) return;
+        if (!state.extraMsgs[e.id]) state.extraMsgs[e.id] = [];
+        var d = new Date();
+        var h = d.getHours(), mm = String(d.getMinutes()).padStart(2,'0');
+        var ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12; if (h === 0) h = 12;
+        state.extraMsgs[e.id].push({who:'You', t:h + ':' + mm + ' ' + ampm, m:val});
+        input.value = '';
+        render();
+        var box = document.getElementById('msgs');
+        if (box) box.scrollIntoView({block:'end'});
+        var again = document.getElementById('msgin');
+        if (again) again.focus();
+      });
+    }
+  }
+
+  function render(){
+    renderPins();
+    var sel = state.selected ? EVENTS.filter(function(e){ return e.id === state.selected; })[0] : null;
+    if (sel && visible().indexOf(sel) === -1) { state.selected = null; sel = null; }
+    if (sel) renderDetail(sel); else renderList();
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>

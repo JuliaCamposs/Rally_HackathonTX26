@@ -19,6 +19,14 @@ pnpm dev                    # http://localhost:4317
 Re-run `pnpm prisma db seed` at any time to reset the demo data — event times
 are seeded relative to "now" so the map always has live and upcoming events.
 
+## Environment files and Git
+
+Keep your local configuration in `.env`; it and other `.env.*` files are
+ignored by Git. Only `.env.example` is committed, with a local SQLite path
+and placeholder configuration. Never put real credentials in that template.
+Local databases, private keys, build output, dependencies, and ZIP archives
+are also excluded from commits.
+
 ## What's inside
 
 - **Real map** — `react-leaflet` with OpenStreetMap basemap tiles by default
