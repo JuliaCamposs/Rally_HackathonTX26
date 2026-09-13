@@ -6,35 +6,11 @@ import { getUserPoints } from "@/lib/queries";
 
 export const runtime = "nodejs";
 
-const MAX_PROOF_BYTES = 5 * 1024 * 1024;
-function detectImageMimeType(bytes: Uint8Array): string | null {
-  const isJpeg = bytes.length >= 3
-    && bytes[0] === 0xff
-    && bytes[1] === 0xd8
-    && bytes[2] === 0xff;
-  const isPng = bytes.length >= 8
-    && bytes[0] === 0x89
-    && bytes[1] === 0x50
-    && bytes[2] === 0x4e
-    && bytes[3] === 0x47
-    && bytes[4] === 0x0d
-    && bytes[5] === 0x0a
-    && bytes[6] === 0x1a
-    && bytes[7] === 0x0a;
-  const isWebp = bytes.length >= 12
-    && String.fromCharCode(...bytes.slice(0, 4)) === "RIFF"
-    && String.fromCharCode(...bytes.slice(8, 12)) === "WEBP";
-  if (isJpeg) return "image/jpeg";
-  if (isPng) return "image/png";
-  if (isWebp) return "image/webp";
+const MAX_PROOF_BYTES = 20 * 1024 * 1024;
+const IMAGE_FILE_EXTENSION = /\.(?:avif|bmp|gif|heic|heif|jpe?g|png|tiff?|webp)$/i;
 
-  const isoBrand = bytes.length >= 12 ? String.fromCharCode(...bytes.slice(4, 12)) : "";
-  if (isoBrand === "ftypavif") return "image/avif";
-  if (["ftypheic", "ftypheix", "ftyphevc", "ftyphevx"].includes(isoBrand)) {
-    return "image/heic";
-  }
-  if (isoBrand === "ftypmif1") return "image/heif";
-  return null;
+function isImageFile(file: File): boolean {
+  return file.type.startsWith("image/") || IMAGE_FILE_EXTENSION.test(file.name);
 }
 
 export async function POST(
@@ -92,21 +68,20 @@ export async function POST(
       { status: 400 },
     );
   }
+  if (!isImageFile(proof)) {
+    return NextResponse.json(
+      { error: "Choose an image file for your event photo" },
+      { status: 415 },
+    );
+  }
   if (proof.size > MAX_PROOF_BYTES) {
     return NextResponse.json(
-      { error: "Keep the event photo under 5 MB" },
+      { error: "Keep the event photo under 20 MB" },
       { status: 413 },
     );
   }
 
   const proofImage = new Uint8Array(await proof.arrayBuffer());
-  const proofMimeType = detectImageMimeType(proofImage);
-  if (!proofMimeType) {
-    return NextResponse.json(
-      { error: "That file doesn’t appear to be a valid photo" },
-      { status: 415 },
-    );
-  }
 
   await prisma.presence.create({
     data: {
@@ -114,7 +89,7 @@ export async function POST(
       userId,
       pointsAwarded: POINTS_PER_PRESENCE,
       proofImage,
-      proofMimeType,
+      proofMimeType: proof.type || "image/unknown",
     },
   });
 

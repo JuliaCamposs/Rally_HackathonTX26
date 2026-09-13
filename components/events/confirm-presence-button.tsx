@@ -64,8 +64,8 @@ export function ConfirmPresenceButton({
   function choosePhoto(file: File | undefined) {
     setError(null);
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Keep the event photo under 5 MB.");
+    if (file.size > 20 * 1024 * 1024) {
+      setError("Keep the event photo under 20 MB.");
       return;
     }
     if (file.type && !file.type.startsWith("image/")) {
@@ -117,7 +117,7 @@ export function ConfirmPresenceButton({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif"
+        accept="image/*"
         capture="environment"
         className="sr-only"
         aria-label="Take or choose an event photo"
