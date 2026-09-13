@@ -25,6 +25,7 @@ type SeedMessage = { who: string; agoMin: number; body: string };
 
 type SeedEvent = {
   slug: string;
+  previousSlug?: string;
   title: string;
   category: "sports" | "study" | "social" | "workshops" | "clubs";
   source: "official" | "community";
@@ -293,21 +294,23 @@ const PRESENTATION_EVENTS: SeedEvent[] = [
     ],
   },
   {
-    slug: "hackwestx-team-match",
-    title: "Find a Hackathon Teammate",
-    category: "social",
+    slug: "pickup-volleyball-rec",
+    previousSlug: "hackwestx-team-match",
+    title: "Pickup Volleyball at the Rec",
+    category: "sports",
     source: "community",
-    venueName: "Innovation Hub Collaboration Area",
-    lat: 33.59065,
-    lng: -101.89725,
-    organizerName: "Rally Community",
-    organizerRole: "HackWesTX attendee meetup",
+    venueName: "Rec Center Sand Courts",
+    lat: 33.5827391,
+    lng: -101.8847441,
+    organizerName: "Maya Ruiz",
+    organizerRole: "Student · Kinesiology",
     description:
-      "Still looking for a teammate or one more skill set? Meet other HackWesTX participants, share your idea, and form a team. Beginners and first-time hackers are especially welcome.",
-    startOffsetMin: -45,
+      "Casual pickup volleyball with rotating teams, so everyone gets time on the court. All skill levels are welcome. We have the ball — bring water and a friend.",
+    startOffsetMin: -30,
     endOffsetMin: 150,
-    photoPath: "/photos/cs-study.jpg",
+    photoPath: "/photos/volleyball.jpg",
     people: [
+      "Maya Ruiz",
       "Priya Nair",
       "Sam Okafor",
       "Iris Lang",
@@ -321,26 +324,27 @@ const PRESENTATION_EVENTS: SeedEvent[] = [
       "Jules Weber",
     ],
     msgs: [
-      { who: "Priya Nair", agoMin: 39, body: "Looking for someone who likes UI — we have the backend started." },
-      { who: "Ben Ortiz", agoMin: 21, body: "I am a first-time hacker and happy to join any beginner-friendly team." },
-      { who: "Sam Okafor", agoMin: 7, body: "We are next to the green HackWesTX banner." },
+      { who: "Maya Ruiz", agoMin: 26, body: "We have court 2 and enough room for another team." },
+      { who: "Ben Ortiz", agoMin: 15, body: "Heading over now — I can bring an extra ball." },
+      { who: "Sam Okafor", agoMin: 6, body: "We are the group closest to the parking lot." },
     ],
   },
   {
-    slug: "hackwestx-demo-rehearsal",
-    title: "Project Demo Rehearsal",
-    category: "workshops",
+    slug: "cs-study-sprint",
+    previousSlug: "hackwestx-demo-rehearsal",
+    title: "CS Study Sprint — Algorithms",
+    category: "study",
     source: "community",
-    venueName: "Innovation Hub Auditorium",
-    lat: 33.5901,
-    lng: -101.89655,
-    organizerName: "HackWesTX Mentors",
-    organizerRole: "Peer feedback session",
+    venueName: "University Library, 3rd Floor East",
+    lat: 33.5814133,
+    lng: -101.8763813,
+    organizerName: "Devon Clark",
+    organizerRole: "Student · Computer Science",
     description:
-      "Practice your two-minute project pitch before judging. Get friendly feedback on your story, live demo, and timing from mentors and other teams.",
-    startOffsetMin: 45,
+      "A focused study session covering graphs, dynamic programming, and practice problems. Come for the full session or bring one question you want to solve together.",
+    startOffsetMin: -60,
     endOffsetMin: 180,
-    photoPath: "/photos/resume.jpg",
+    photoPath: "/photos/cs-study.jpg",
     people: [
       "Hana Fischer",
       "Leo Vance",
@@ -356,26 +360,27 @@ const PRESENTATION_EVENTS: SeedEvent[] = [
       "Kai Mensah",
     ],
     msgs: [
-      { who: "Grace Yun", agoMin: 28, body: "Bring your laptop and we will time the full demo." },
-      { who: "Ravi Shah", agoMin: 11, body: "Can we practice even if the prototype is not totally finished?" },
-      { who: "Hana Fischer", agoMin: 5, body: "Absolutely — explaining the idea clearly is the goal." },
+      { who: "Grace Yun", agoMin: 28, body: "We saved the big table by the east windows." },
+      { who: "Ravi Shah", agoMin: 11, body: "Can someone review Dijkstra's algorithm with me?" },
+      { who: "Hana Fischer", agoMin: 5, body: "Yes — we are starting graph problems next." },
     ],
   },
   {
-    slug: "hackwestx-coffee-break",
-    title: "Coffee, Snacks & Builder Break",
-    category: "social",
+    slug: "student-org-showcase",
+    previousSlug: "hackwestx-coffee-break",
+    title: "Texas Tech Student Org Showcase",
+    category: "clubs",
     source: "official",
-    venueName: "Innovation Hub Commons",
-    lat: 33.59035,
-    lng: -101.8976,
-    organizerName: "HackWesTX Team",
-    organizerRole: "Hackathon hospitality",
+    venueName: "Student Union Ballroom",
+    lat: 33.58235,
+    lng: -101.87415,
+    organizerName: "Student Union & Activities",
+    organizerRole: "Campus department",
     description:
-      "Step away from the laptop for coffee, snacks, and a quick reset. Meet teams from across campus and swap ideas before the final build push.",
+      "Meet student organizations from across Texas Tech in one place. Explore engineering, culture, service, arts, and recreation groups, then find your next campus community.",
     startOffsetMin: -15,
-    endOffsetMin: 90,
-    photoPath: "/photos/watch.jpg",
+    endOffsetMin: 120,
+    photoPath: "/photos/salsa.jpg",
     people: [
       "Maya Ruiz",
       "Devon Clark",
@@ -393,24 +398,25 @@ const PRESENTATION_EVENTS: SeedEvent[] = [
       "Ines Rojas",
     ],
     msgs: [
-      { who: "Ana Guzman", agoMin: 13, body: "Fresh coffee just arrived in the commons." },
-      { who: "Theo Blake", agoMin: 4, body: "There are still plenty of snacks by the sponsor tables." },
+      { who: "Ana Guzman", agoMin: 13, body: "The cultural organizations are along the left wall." },
+      { who: "Theo Blake", agoMin: 4, body: "Just found two outdoor clubs I want to join." },
     ],
   },
   {
-    slug: "hackwestx-closing-ceremony",
-    title: "HackWesTX Closing Ceremony & Awards",
-    category: "clubs",
-    source: "official",
-    venueName: "TTU Innovation Hub at Research Park",
-    lat: 33.59015,
-    lng: -101.89705,
-    organizerName: "GDG on Campus at Texas Tech",
-    organizerRole: "Student organization · HackWesTX",
+    slug: "campus-golden-hour-photo-walk",
+    previousSlug: "hackwestx-closing-ceremony",
+    title: "Campus Golden Hour Photo Walk",
+    category: "social",
+    source: "community",
+    venueName: "Media & Communication, front steps",
+    lat: 33.58207,
+    lng: -101.8804042,
+    organizerName: "Texas Tech Photo Club",
+    organizerRole: "Student-led campus outing",
     description:
-      "Celebrate the projects, people, and ideas built at HackWesTX. See the finalists demo, hear the judges' feedback, and cheer for the award winners.",
-    startOffsetMin: 300,
-    endOffsetMin: 390,
+      "Walk the west side of campus and capture Texas Tech in golden-hour light. Phones and cameras are both welcome, and club members can help with composition and settings.",
+    startOffsetMin: 180,
+    endOffsetMin: 300,
     photoPath: "/photos/photo.jpg",
     people: [
       "Maya Ruiz",
@@ -447,9 +453,9 @@ const PRESENTATION_EVENTS: SeedEvent[] = [
       "Anya Volkov",
     ],
     msgs: [
-      { who: "Kai Mensah", agoMin: 35, body: "Cannot wait to see everyone's projects on the big screen." },
-      { who: "Nadia Petrov", agoMin: 18, body: "Do teams need to arrive early for finalist setup?" },
-      { who: "Grace Yun", agoMin: 8, body: "Finalists should be by the stage 20 minutes before we start." },
+      { who: "Kai Mensah", agoMin: 35, body: "Phones are welcome too, right?" },
+      { who: "Nadia Petrov", agoMin: 18, body: "Yes! We will share a few composition tips before we walk." },
+      { who: "Grace Yun", agoMin: 8, body: "Meeting on the front steps ten minutes before sunset." },
     ],
   },
 ];
@@ -552,11 +558,19 @@ async function upsertPresentationEvents(now: number) {
       organizerRole: e.organizerRole,
     };
 
-    const event = await prisma.event.upsert({
-      where: { slug: e.slug },
-      update: eventData,
-      create: { slug: e.slug, ...eventData },
-    });
+    const existingEvent =
+      (await prisma.event.findUnique({ where: { slug: e.slug } })) ??
+      (e.previousSlug
+        ? await prisma.event.findUnique({ where: { slug: e.previousSlug } })
+        : null);
+    const event = existingEvent
+      ? await prisma.event.update({
+          where: { id: existingEvent.id },
+          data: { slug: e.slug, ...eventData },
+        })
+      : await prisma.event.create({
+          data: { slug: e.slug, ...eventData },
+        });
 
     for (const name of e.people) {
       const userId = userIds.get(name)!;
@@ -567,9 +581,10 @@ async function upsertPresentationEvents(now: number) {
       });
     }
 
+    const messageSeedSlug = e.previousSlug ?? e.slug;
     for (const [index, m] of e.msgs.entries()) {
       await prisma.message.upsert({
-        where: { id: `presentation-${e.slug}-${index}` },
+        where: { id: `presentation-${messageSeedSlug}-${index}` },
         update: {
           eventId: event.id,
           userId: userIds.get(m.who)!,
@@ -577,7 +592,7 @@ async function upsertPresentationEvents(now: number) {
           createdAt: new Date(now - m.agoMin * MIN),
         },
         create: {
-          id: `presentation-${e.slug}-${index}`,
+          id: `presentation-${messageSeedSlug}-${index}`,
           eventId: event.id,
           userId: userIds.get(m.who)!,
           body: m.body,
