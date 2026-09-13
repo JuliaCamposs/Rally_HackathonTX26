@@ -1,4 +1,4 @@
-# Rally — Happening at Texas Tech
+# Rally — Discover. Join. Rally
 
 A live campus map for Texas Tech University. Events appear as pins on a real
 map of campus; filter by time, type, and category; open an event to join it
