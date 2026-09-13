@@ -241,12 +241,13 @@ const EVENTS: SeedEvent[] = [
 ];
 
 async function main() {
-  const now = Date.now();
+  const existingEvents = await prisma.event.count();
+  if (existingEvents > 0) {
+    console.log(`Seed skipped: ${existingEvents} events already exist.`);
+    return;
+  }
 
-  await prisma.message.deleteMany();
-  await prisma.rsvp.deleteMany();
-  await prisma.event.deleteMany();
-  await prisma.user.deleteMany();
+  const now = Date.now();
 
   const names = new Set<string>();
   for (const e of EVENTS) {

@@ -5,13 +5,13 @@ map of campus; filter by time, type, and category; open an event to join it
 and chat with the group.
 
 Built with Next.js (App Router) + TypeScript + Tailwind CSS v4 + shadcn/ui,
-Leaflet (react-leaflet) for the map, and Prisma + SQLite for persistence.
+Leaflet (react-leaflet) for the map, and Prisma + PostgreSQL for persistence.
 
 ## Run it locally
 
 ```bash
 pnpm install
-cp .env.example .env        # DATABASE_URL for the local SQLite file
+cp .env.example .env.local  # add a PostgreSQL URL and provider credentials
 pnpm db:setup               # prisma migrate + seed (9 events, real TTU coords)
 pnpm dev                    # http://localhost:4317
 ```
@@ -35,14 +35,14 @@ Set `GEMINI_API_KEY` only in `.env.local` or your deployment's secret manager.
 The browser never receives the key. `GEMINI_MODEL` is optional and defaults to
 `gemini-3.6-flash`.
 
-Re-run `pnpm prisma db seed` at any time to reset the demo data — event times
-are seeded relative to "now" so the map always has live and upcoming events.
+Run `pnpm prisma db seed` to populate an empty database. The seed is
+idempotent and will not overwrite existing profiles, chats, RSVPs, or photos.
 
 ## Environment files and Git
 
-Keep your local configuration in `.env`; it and other `.env.*` files are
-ignored by Git. Only `.env.example` is committed, with a local SQLite path
-and placeholder configuration. Never put real credentials in that template.
+Keep your local configuration in `.env.local`; it and other `.env.*` files are
+ignored by Git. Only `.env.example` is committed, with placeholder
+configuration. Never put real credentials in that template.
 Local databases, private keys, build output, dependencies, and ZIP archives
 are also excluded from commits.
 
@@ -70,8 +70,8 @@ are also excluded from commits.
   - `POST|DELETE /api/events/[id]/join`
   - `GET|POST /api/events/[id]/messages` (POST requires a join — 403 otherwise)
 - **Data model** — `prisma/schema.prisma`: `User`, `Event`, `Rsvp`,
-  `Message`. SQLite locally; switch `DATABASE_URL` and the datasource
-  provider to Postgres for production.
+  `Presence`, and `Message`, stored in PostgreSQL. Vercel injects
+  `RALLY_POSTGRES_URL` through the connected Prisma Postgres integration.
 
 ## Notes for production
 
