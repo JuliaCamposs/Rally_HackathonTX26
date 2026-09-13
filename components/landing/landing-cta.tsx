@@ -2,7 +2,7 @@ import Image from "next/image";
 import { RallyBuddy } from "@/components/rally-buddy";
 import { StoreButtons } from "@/components/landing/store-buttons";
 
-const PARTNERS = [
+const CAMPUS_COMMUNITY = [
   "Texas Tech",
   "Rec Center",
   "Career Center",
@@ -11,15 +11,15 @@ const PARTNERS = [
   "Student Union",
 ];
 
-export function LandingPartners() {
+export function LandingCampusCommunity() {
   return (
     <section className="border-y border-line bg-white py-10">
       <div className="landing-wrap">
         <p className="text-center text-[12px] font-bold tracking-[0.14em] text-mute uppercase">
-          We are partnered with more than 50+ companies around the globe
+          Built around Texas Tech and its campus community
         </p>
         <ul className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          {PARTNERS.map((name) => (
+          {CAMPUS_COMMUNITY.map((name) => (
             <li
               key={name}
               className="rounded-full border border-line bg-page px-4 py-2 text-[13px] font-bold text-eucalyptus"

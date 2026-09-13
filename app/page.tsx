@@ -1,4 +1,4 @@
-import { LandingCta, LandingFooter, LandingPartners } from "@/components/landing/landing-cta";
+import { LandingCampusCommunity, LandingCta, LandingFooter } from "@/components/landing/landing-cta";
 import { LandingFaq } from "@/components/landing/landing-faq";
 import { LandingFeatures } from "@/components/landing/landing-features";
 import { LandingHero } from "@/components/landing/landing-hero";
@@ -16,7 +16,7 @@ export default function LandingPage() {
       <LandingNav />
       <main>
         <LandingHero />
-        <LandingPartners />
+        <LandingCampusCommunity />
         <LandingFeatures />
         <LandingHowItWorks />
         <LandingWhy />

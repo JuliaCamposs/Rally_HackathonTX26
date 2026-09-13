@@ -1,16 +1,11 @@
-"use client";
-
 import Link from "next/link";
-import { useState } from "react";
-import { ArrowRight, MapPin, Pause, Play } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { PhoneMockup } from "@/components/landing/phone-mockup";
 import styles from "./landing-hero.module.css";
 
 export function LandingHero() {
-  const [paused, setPaused] = useState(false);
-
   return (
-    <section className={styles.hero} aria-labelledby="hero-title" data-paused={paused}>
+    <section className={styles.hero} aria-labelledby="hero-title">
       <div className={styles.background} aria-hidden="true">
         <div className={styles.tide} />
         <div className={styles.aurora} />
@@ -55,16 +50,6 @@ export function LandingHero() {
         </div>
       </div>
 
-      <button
-        type="button"
-        className={styles.motionToggle}
-        onClick={() => setPaused((value) => !value)}
-        aria-label={paused ? "Play background animation" : "Pause background animation"}
-        aria-pressed={paused}
-      >
-        {paused ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />}
-        <span>{paused ? "Play motion" : "Pause motion"}</span>
-      </button>
     </section>
   );
 }
