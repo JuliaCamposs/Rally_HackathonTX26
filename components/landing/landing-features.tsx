@@ -20,10 +20,10 @@ const FEATURES = [
   },
   {
     id: "points",
-    title: "Confirm you’re here. Earn points.",
-    copy: "When you show up, tap I’m here for +50 points — once per event. Your total, level, and progress bar sit under You.",
+    title: "Prove you’re there. Earn points.",
+    copy: "While the event is happening, tap I’m here and submit an event photo as private proof for +50 points — once per event. Your total, level, and progress bar sit under You.",
     image: "/photos/salsa.jpg",
-    caption: "+50 pts when you confirm presence",
+    caption: "+50 pts with a photo check-in",
     icon: Sparkles,
   },
 ];

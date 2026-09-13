@@ -13,12 +13,12 @@ const FAQS = [
     a: "This campus is Texas Tech University in Lubbock — that’s the map you open today. The product is built so another campus can be next.",
   },
   {
-    q: "Do I need to join to see the map?",
-    a: "No. The live map, filters, and event cards are open. Join when you want the group chat and the I’m here button.",
+    q: "Do I need to log in to see the map?",
+    a: "Yes. Click Find your people and sign in with Google or a personal Microsoft account, securely powered by Auth0. Once you’re signed in, you can use the live map, filters, and event cards.",
   },
   {
     q: "How do points work?",
-    a: "Join an event, then confirm you’re there. That’s 50 points, once per event. Leaving later doesn’t take them back. The bar under You fills toward the next 150-point level.",
+    a: "Join an event, then tap I’m here while it’s happening. Take or choose an event photo and submit it as private proof to earn 50 points, once per event. The bar under You fills toward the next 150-point level.",
   },
   {
     q: "Is the group chat public?",

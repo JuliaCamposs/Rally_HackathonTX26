@@ -88,6 +88,9 @@ are also excluded from commits.
   a local profile keyed by the stable Auth0 subject on first login and restores
   it on later sessions. `/app`, RSVPs, presence, points, and event chats require
   authentication; chat messages are visible only to event members.
+- **Photo check-in**: joined users can earn 50 points once per live event only
+  after taking or choosing an event photo. The server validates the image and
+  stores it privately with the presence record as proof.
 - **Rally Buddy**: authenticated users can describe an activity in natural
   language. The server uses Gemini's Interactions API with storage disabled,
   sends only Rally's current event catalog, validates returned IDs against that

@@ -1,7 +1,7 @@
 const STEPS = [
   { n: "01", title: "Find", text: "Open the live map. Filter by now, later, Texas Tech, or community." },
   { n: "02", title: "Join", text: "Pick a pin. Join this event. The group chat opens with the people already going." },
-  { n: "03", title: "Show up", text: "Confirm you’re here. Take 50 points. The bar under You ticks up." },
+  { n: "03", title: "Show up", text: "Tap I’m here, take an event photo, and submit it to earn 50 points. The bar under You ticks up." },
 ];
 
 export function LandingHowItWorks() {

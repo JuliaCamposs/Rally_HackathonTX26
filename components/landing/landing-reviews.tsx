@@ -12,7 +12,7 @@ const REVIEWS = [
   {
     name: "Ines Rojas",
     place: "Lubbock, TX · Hispanic Student Society",
-    text: "Salsa Night filled from the pin, not the Instagram story. Confirming I was there and watching the points tick felt silly until it didn’t.",
+    text: "Salsa Night filled from the pin, not the Instagram story. Sharing my event photo and watching the points tick felt silly until it didn’t.",
   },
 ];
 

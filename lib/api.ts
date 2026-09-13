@@ -73,8 +73,13 @@ export function useEventActions() {
     return data;
   }
 
-  async function confirmPresence(eventId: string) {
-    const res = await fetch(`/api/events/${eventId}/presence`, { method: "POST" });
+  async function confirmPresence(eventId: string, proof: File) {
+    const formData = new FormData();
+    formData.set("proof", proof);
+    const res = await fetch(`/api/events/${eventId}/presence`, {
+      method: "POST",
+      body: formData,
+    });
     if (!res.ok) {
       const body = (await res.json().catch(() => null)) as { error?: string } | null;
       throw new Error(body?.error ?? "Could not confirm presence");

@@ -71,8 +71,8 @@ export function RallyApp({
       event={detail}
       onBack={() => setSelectedId(null)}
       onToggleJoin={() => toggleJoin(detail)}
-      onConfirmPresence={async () => {
-        await confirmPresence(detail.id);
+      onConfirmPresence={async (proof) => {
+        await confirmPresence(detail.id, proof);
       }}
       onSendMessage={async (body) => {
         await sendMessage(detail.id, body);

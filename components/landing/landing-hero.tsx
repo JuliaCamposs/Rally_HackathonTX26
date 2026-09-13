@@ -29,7 +29,7 @@ export function LandingHero() {
           </h1>
           <p className={styles.description}>
             Rally is a live map of Texas Tech. Find what’s on, join in minutes,
-            chat with the group, and earn points when you confirm you’re there.
+            chat with the group, and earn points with a photo check-in.
           </p>
           <div className={styles.actions}>
             <Link
@@ -42,10 +42,6 @@ export function LandingHero() {
               How it works <ArrowRight size={16} aria-hidden="true" />
             </a>
           </div>
-          <p className={styles.proof}>
-            <strong>200K+ Downloads</strong>
-            <span>students opening pins this week</span>
-          </p>
         </div>
 
         <div className={styles.visual} aria-hidden="true">

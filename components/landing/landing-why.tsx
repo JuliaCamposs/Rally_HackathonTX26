@@ -19,7 +19,7 @@ const REASONS = [
   {
     icon: Trophy,
     title: "Points for showing up",
-    text: "Confirm presence for 50 points, once per event. Level up under You — not for scrolling, for being there.",
+    text: "Submit a private event photo for 50 points, once per event. Level up under You — not for scrolling, for being there.",
   },
 ];
 

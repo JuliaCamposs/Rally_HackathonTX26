@@ -12,7 +12,7 @@ type EventDetailProps = {
   event: EventDetailDto;
   onBack: () => void;
   onToggleJoin: () => Promise<void> | void;
-  onConfirmPresence: () => Promise<void> | void;
+  onConfirmPresence: (proof: File) => Promise<void> | void;
   onSendMessage: (body: string) => Promise<void>;
 };
 
@@ -103,6 +103,7 @@ export function EventDetail({
           <JoinButton joined={event.joined} onToggle={onToggleJoin} />
           <ConfirmPresenceButton
             joined={event.joined}
+            live={event.live}
             present={event.present}
             onConfirm={onConfirmPresence}
           />

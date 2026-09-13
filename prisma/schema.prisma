@@ -59,6 +59,8 @@ model Presence {
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String
   pointsAwarded Int      @default(50)
+  proofImage    Bytes?
+  proofMimeType String?
   createdAt     DateTime @default(now())
 
   @@unique([eventId, userId])
