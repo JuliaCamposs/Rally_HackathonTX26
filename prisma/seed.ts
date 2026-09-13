@@ -36,6 +36,7 @@ type SeedEvent = {
   description: string;
   startOffsetMin: number;
   endOffsetMin: number;
+  photoPath?: string;
   people: string[];
   msgs: SeedMessage[];
 };
@@ -240,15 +241,220 @@ const EVENTS: SeedEvent[] = [
   },
 ];
 
-async function main() {
-  const existingEvents = await prisma.event.count();
-  if (existingEvents > 0) {
-    console.log(`Seed skipped: ${existingEvents} events already exist.`);
-    return;
-  }
+// Presentation-friendly events are upserted on every deployment so the map
+// always has a useful mix of live and upcoming activity. Existing event IDs,
+// RSVPs, chats, profiles, and check-ins are preserved.
+const PRESENTATION_EVENTS: SeedEvent[] = [
+  {
+    slug: "hackwestx-2026",
+    title: "HackWesTX 2026 — Beyond the Feed",
+    category: "workshops",
+    source: "official",
+    venueName: "TTU Innovation Hub at Research Park",
+    lat: 33.5904,
+    lng: -101.8969,
+    organizerName: "GDG on Campus at Texas Tech",
+    organizerRole: "Student organization · HackWesTX",
+    description:
+      "HackWesTX is live! Build, learn, and meet other makers during West Texas's student-run hackathon. Drop in to find a teammate, get mentor help, or see what teams are creating.",
+    startOffsetMin: -120,
+    endOffsetMin: 540,
+    photoPath: "/photos/acm.jpg",
+    people: [
+      "Maya Ruiz",
+      "Devon Clark",
+      "Priya Nair",
+      "Sam Okafor",
+      "Iris Lang",
+      "Noah Whitfield",
+      "Sasha Kim",
+      "Ben Ortiz",
+      "Lena Park",
+      "Amir Haddad",
+      "Grace Yun",
+      "Owen Diaz",
+      "Rita Alvarez",
+      "Kai Mensah",
+      "Jules Weber",
+      "Hana Fischer",
+      "Leo Vance",
+      "Mei Tanaka",
+      "Cole Bryant",
+      "Nadia Petrov",
+      "Ravi Shah",
+      "Elena Moss",
+      "Finn Doyle",
+      "Zara Ahmed",
+    ],
+    msgs: [
+      { who: "Devon Clark", agoMin: 82, body: "Our team is by the windows if anyone wants to build the map feature with us." },
+      { who: "Grace Yun", agoMin: 46, body: "The mentor table is open now — no line." },
+      { who: "Maya Ruiz", agoMin: 14, body: "Just checked in. The energy in here is amazing!" },
+    ],
+  },
+  {
+    slug: "hackwestx-team-match",
+    title: "Find a Hackathon Teammate",
+    category: "social",
+    source: "community",
+    venueName: "Innovation Hub Collaboration Area",
+    lat: 33.59065,
+    lng: -101.89725,
+    organizerName: "Rally Community",
+    organizerRole: "HackWesTX attendee meetup",
+    description:
+      "Still looking for a teammate or one more skill set? Meet other HackWesTX participants, share your idea, and form a team. Beginners and first-time hackers are especially welcome.",
+    startOffsetMin: -45,
+    endOffsetMin: 150,
+    photoPath: "/photos/cs-study.jpg",
+    people: [
+      "Priya Nair",
+      "Sam Okafor",
+      "Iris Lang",
+      "Tyler Boone",
+      "Ana Guzman",
+      "Noah Whitfield",
+      "Sasha Kim",
+      "Ben Ortiz",
+      "Amir Haddad",
+      "Rita Alvarez",
+      "Jules Weber",
+    ],
+    msgs: [
+      { who: "Priya Nair", agoMin: 39, body: "Looking for someone who likes UI — we have the backend started." },
+      { who: "Ben Ortiz", agoMin: 21, body: "I am a first-time hacker and happy to join any beginner-friendly team." },
+      { who: "Sam Okafor", agoMin: 7, body: "We are next to the green HackWesTX banner." },
+    ],
+  },
+  {
+    slug: "hackwestx-demo-rehearsal",
+    title: "Project Demo Rehearsal",
+    category: "workshops",
+    source: "community",
+    venueName: "Innovation Hub Auditorium",
+    lat: 33.5901,
+    lng: -101.89655,
+    organizerName: "HackWesTX Mentors",
+    organizerRole: "Peer feedback session",
+    description:
+      "Practice your two-minute project pitch before judging. Get friendly feedback on your story, live demo, and timing from mentors and other teams.",
+    startOffsetMin: 45,
+    endOffsetMin: 180,
+    photoPath: "/photos/resume.jpg",
+    people: [
+      "Hana Fischer",
+      "Leo Vance",
+      "Mei Tanaka",
+      "Cole Bryant",
+      "Nadia Petrov",
+      "Ravi Shah",
+      "Elena Moss",
+      "Finn Doyle",
+      "Zara Ahmed",
+      "Grace Yun",
+      "Owen Diaz",
+      "Kai Mensah",
+    ],
+    msgs: [
+      { who: "Grace Yun", agoMin: 28, body: "Bring your laptop and we will time the full demo." },
+      { who: "Ravi Shah", agoMin: 11, body: "Can we practice even if the prototype is not totally finished?" },
+      { who: "Hana Fischer", agoMin: 5, body: "Absolutely — explaining the idea clearly is the goal." },
+    ],
+  },
+  {
+    slug: "hackwestx-coffee-break",
+    title: "Coffee, Snacks & Builder Break",
+    category: "social",
+    source: "official",
+    venueName: "Innovation Hub Commons",
+    lat: 33.59035,
+    lng: -101.8976,
+    organizerName: "HackWesTX Team",
+    organizerRole: "Hackathon hospitality",
+    description:
+      "Step away from the laptop for coffee, snacks, and a quick reset. Meet teams from across campus and swap ideas before the final build push.",
+    startOffsetMin: -15,
+    endOffsetMin: 90,
+    photoPath: "/photos/watch.jpg",
+    people: [
+      "Maya Ruiz",
+      "Devon Clark",
+      "Ana Guzman",
+      "Tyler Boone",
+      "Cole Bryant",
+      "Marcus Webb",
+      "Finn Doyle",
+      "Theo Blake",
+      "Bea Carver",
+      "Yuki Sato",
+      "Zara Ahmed",
+      "Otto Lind",
+      "Dara Nolan",
+      "Ines Rojas",
+    ],
+    msgs: [
+      { who: "Ana Guzman", agoMin: 13, body: "Fresh coffee just arrived in the commons." },
+      { who: "Theo Blake", agoMin: 4, body: "There are still plenty of snacks by the sponsor tables." },
+    ],
+  },
+  {
+    slug: "hackwestx-closing-ceremony",
+    title: "HackWesTX Closing Ceremony & Awards",
+    category: "clubs",
+    source: "official",
+    venueName: "TTU Innovation Hub at Research Park",
+    lat: 33.59015,
+    lng: -101.89705,
+    organizerName: "GDG on Campus at Texas Tech",
+    organizerRole: "Student organization · HackWesTX",
+    description:
+      "Celebrate the projects, people, and ideas built at HackWesTX. See the finalists demo, hear the judges' feedback, and cheer for the award winners.",
+    startOffsetMin: 300,
+    endOffsetMin: 390,
+    photoPath: "/photos/photo.jpg",
+    people: [
+      "Maya Ruiz",
+      "Devon Clark",
+      "Priya Nair",
+      "Sam Okafor",
+      "Iris Lang",
+      "Noah Whitfield",
+      "Sasha Kim",
+      "Ben Ortiz",
+      "Lena Park",
+      "Amir Haddad",
+      "Grace Yun",
+      "Owen Diaz",
+      "Rita Alvarez",
+      "Kai Mensah",
+      "Jules Weber",
+      "Hana Fischer",
+      "Leo Vance",
+      "Mei Tanaka",
+      "Cole Bryant",
+      "Nadia Petrov",
+      "Ravi Shah",
+      "Elena Moss",
+      "Finn Doyle",
+      "Zara Ahmed",
+      "Otto Lind",
+      "Bea Carver",
+      "Ines Rojas",
+      "Marcus Webb",
+      "Yuki Sato",
+      "Dara Nolan",
+      "Theo Blake",
+      "Anya Volkov",
+    ],
+    msgs: [
+      { who: "Kai Mensah", agoMin: 35, body: "Cannot wait to see everyone's projects on the big screen." },
+      { who: "Nadia Petrov", agoMin: 18, body: "Do teams need to arrive early for finalist setup?" },
+      { who: "Grace Yun", agoMin: 8, body: "Finalists should be by the stage 20 minutes before we start." },
+    ],
+  },
+];
 
-  const now = Date.now();
-
+async function createBaseEvents(now: number) {
   const names = new Set<string>();
   for (const e of EVENTS) {
     e.people.forEach((p) => names.add(p));
@@ -263,7 +469,7 @@ async function main() {
     userIds.set(name, u.id);
   }
 
-  // The signed-in demo identity ("You"), referenced by the session cookie.
+  // Kept for databases created before Auth0 was added.
   await prisma.user.create({
     data: { id: "demo-user", name: "You", avatarColor: "#0b1f18" },
   });
@@ -281,7 +487,7 @@ async function main() {
         venueName: e.venueName,
         lat: e.lat,
         lng: e.lng,
-        photoPath: `/photos/${e.slug}.jpg`,
+        photoPath: e.photoPath ?? `/photos/${e.slug}.jpg`,
         organizerName: e.organizerName,
         organizerRole: e.organizerRole,
       },
@@ -307,8 +513,90 @@ async function main() {
   }
 
   console.log(
-    `Seeded ${EVENTS.length} events, ${names.size + 1} users, RSVPs and messages.`,
+    `Seeded ${EVENTS.length} base events, ${names.size + 1} users, RSVPs and messages.`,
   );
+}
+
+async function upsertPresentationEvents(now: number) {
+  const names = new Set<string>();
+  for (const e of PRESENTATION_EVENTS) {
+    e.people.forEach((p) => names.add(p));
+    e.msgs.forEach((m) => names.add(m.who));
+  }
+
+  const userIds = new Map<string, string>();
+  for (const name of names) {
+    const user = await prisma.user.findFirst({
+      where: { name, auth0Id: null },
+      orderBy: { createdAt: "asc" },
+    });
+    if (!user) {
+      throw new Error(`Missing seed user for presentation event: ${name}`);
+    }
+    userIds.set(name, user.id);
+  }
+
+  for (const e of PRESENTATION_EVENTS) {
+    const eventData = {
+      title: e.title,
+      description: e.description,
+      category: e.category,
+      source: e.source,
+      startsAt: new Date(now + e.startOffsetMin * MIN),
+      endsAt: new Date(now + e.endOffsetMin * MIN),
+      venueName: e.venueName,
+      lat: e.lat,
+      lng: e.lng,
+      photoPath: e.photoPath ?? `/photos/${e.slug}.jpg`,
+      organizerName: e.organizerName,
+      organizerRole: e.organizerRole,
+    };
+
+    const event = await prisma.event.upsert({
+      where: { slug: e.slug },
+      update: eventData,
+      create: { slug: e.slug, ...eventData },
+    });
+
+    for (const name of e.people) {
+      const userId = userIds.get(name)!;
+      await prisma.rsvp.upsert({
+        where: { eventId_userId: { eventId: event.id, userId } },
+        update: {},
+        create: { eventId: event.id, userId },
+      });
+    }
+
+    for (const [index, m] of e.msgs.entries()) {
+      await prisma.message.upsert({
+        where: { id: `presentation-${e.slug}-${index}` },
+        update: {
+          eventId: event.id,
+          userId: userIds.get(m.who)!,
+          body: m.body,
+          createdAt: new Date(now - m.agoMin * MIN),
+        },
+        create: {
+          id: `presentation-${e.slug}-${index}`,
+          eventId: event.id,
+          userId: userIds.get(m.who)!,
+          body: m.body,
+          createdAt: new Date(now - m.agoMin * MIN),
+        },
+      });
+    }
+  }
+
+  console.log(`Upserted ${PRESENTATION_EVENTS.length} presentation events.`);
+}
+
+async function main() {
+  const existingEvents = await prisma.event.count();
+  const now = Date.now();
+  if (existingEvents === 0) await createBaseEvents(now);
+  else console.log(`Preserved ${existingEvents} existing events and their activity.`);
+
+  await upsertPresentationEvents(now);
 }
 
 main()

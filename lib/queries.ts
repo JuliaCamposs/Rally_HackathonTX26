@@ -46,8 +46,8 @@ export async function listEvents(
   ]);
 
   const now = new Date();
-  const visible = events
-    .filter((e) => e.endsAt > now) // past events drop off the map
+  const currentEvents = events.filter((e) => e.endsAt > now);
+  const visible = currentEvents
     .filter((e) => {
       if (params.time === "now") return isLive(e.startsAt, e.endsAt, now);
       if (params.time === "later") return e.startsAt > now;
@@ -66,7 +66,7 @@ export async function listEvents(
 
   return {
     events: visible.map((e) => toEventSummary(e, currentUserId, now, presentIds)),
-    total: events.length,
+    total: currentEvents.length,
   };
 }
 
