@@ -6,7 +6,7 @@ import { getUserPoints } from "@/lib/queries";
 
 export const runtime = "nodejs";
 
-const MAX_PROOF_BYTES = 20 * 1024 * 1024;
+const MAX_PROOF_BYTES = 4 * 1024 * 1024;
 const IMAGE_FILE_EXTENSION = /\.(?:avif|bmp|gif|heic|heif|jpe?g|png|tiff?|webp)$/i;
 
 function isImageFile(file: File): boolean {
@@ -76,7 +76,7 @@ export async function POST(
   }
   if (proof.size > MAX_PROOF_BYTES) {
     return NextResponse.json(
-      { error: "Keep the event photo under 20 MB" },
+      { error: "The event photo could not be prepared for upload" },
       { status: 413 },
     );
   }

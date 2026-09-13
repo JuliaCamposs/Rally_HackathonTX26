@@ -15,6 +15,40 @@ type ConfirmPresenceButtonProps = {
   className?: string;
 };
 
+const MAX_UPLOAD_BYTES = 3.5 * 1024 * 1024;
+const MAX_IMAGE_DIMENSION = 1600;
+
+async function preparePhoto(file: File): Promise<File> {
+  if (file.size <= MAX_UPLOAD_BYTES) return file;
+
+  const bitmap = await createImageBitmap(file);
+  try {
+    const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Canvas is unavailable");
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", 0.82),
+    );
+    if (!blob || blob.size > MAX_UPLOAD_BYTES) {
+      throw new Error("The prepared photo is still too large");
+    }
+
+    const baseName = file.name.replace(/\.[^.]+$/, "") || "event-photo";
+    return new File([blob], `${baseName}.jpg`, {
+      type: "image/jpeg",
+      lastModified: Date.now(),
+    });
+  } finally {
+    bitmap.close();
+  }
+}
+
 export function ConfirmPresenceButton({
   joined,
   live,
@@ -27,6 +61,7 @@ export function ConfirmPresenceButton({
   const [proof, setProof] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [preparing, setPreparing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -61,7 +96,7 @@ export function ConfirmPresenceButton({
     inputRef.current?.click();
   }
 
-  function choosePhoto(file: File | undefined) {
+  async function choosePhoto(file: File | undefined) {
     setError(null);
     if (!file) return;
     if (file.size > 20 * 1024 * 1024) {
@@ -72,11 +107,20 @@ export function ConfirmPresenceButton({
       setError("Choose a valid event photo.");
       return;
     }
-    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
-    const nextPreviewUrl = URL.createObjectURL(file);
-    previewUrlRef.current = nextPreviewUrl;
-    setProof(file);
-    setPreviewUrl(nextPreviewUrl);
+
+    setPreparing(true);
+    try {
+      const prepared = await preparePhoto(file);
+      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+      const nextPreviewUrl = URL.createObjectURL(prepared);
+      previewUrlRef.current = nextPreviewUrl;
+      setProof(prepared);
+      setPreviewUrl(nextPreviewUrl);
+    } catch {
+      setError("Could not prepare that photo. Try another image under 20 MB.");
+    } finally {
+      setPreparing(false);
+    }
   }
 
   if (!joined) {
@@ -121,7 +165,7 @@ export function ConfirmPresenceButton({
         capture="environment"
         className="sr-only"
         aria-label="Take or choose an event photo"
-        onChange={(event) => choosePhoto(event.target.files?.[0])}
+        onChange={(event) => void choosePhoto(event.target.files?.[0])}
       />
 
       {previewUrl && proof ? (
@@ -163,10 +207,11 @@ export function ConfirmPresenceButton({
           <Button
             type="button"
             onClick={openPhotoPicker}
+            disabled={preparing}
             className="w-full rounded-xl bg-brand text-[14.5px] font-bold text-white shadow-[0_3px_12px_rgba(15,92,76,0.24)] hover:brightness-[1.06]"
           >
             <Camera className="size-4" strokeWidth={2.2} />
-            I&apos;m here · take a photo
+            {preparing ? "Preparing photo…" : "I’m here · take a photo"}
           </Button>
           <p className="m-0 text-center text-[11.5px] text-mute">
             Photo proof is required to earn +{POINTS_PER_PRESENCE} points.
