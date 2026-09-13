@@ -33,7 +33,7 @@ connection environment variables if your tenant uses different names.
 
 Set `GEMINI_API_KEY` only in `.env.local` or your deployment's secret manager.
 The browser never receives the key. `GEMINI_MODEL` is optional and defaults to
-`gemini-2.5-flash`.
+`gemini-3.6-flash`.
 
 Re-run `pnpm prisma db seed` at any time to reset the demo data — event times
 are seeded relative to "now" so the map always has live and upcoming events.
@@ -89,10 +89,11 @@ are also excluded from commits.
   it on later sessions. `/app`, RSVPs, presence, points, and event chats require
   authentication; chat messages are visible only to event members.
 - **Rally Buddy**: authenticated users can describe an activity in natural
-  language. The server sends Gemini only Rally's current event catalog,
-  validates returned IDs against that catalog, and rate-limits each profile to
-  six searches per minute. For multi-instance production deployments, replace
-  the in-memory limiter with a shared store such as Redis.
+  language. The server uses Gemini's Interactions API with storage disabled,
+  sends only Rally's current event catalog, validates returned IDs against that
+  catalog, and rate-limits each profile to six searches per minute. For
+  multi-instance production deployments, replace the in-memory limiter with a
+  shared store such as Redis.
 - **Chat realtime**: the UI polls every 5s while a joined event is open. For
   instant delivery, swap `useEventDetail` in `lib/api.ts` for SSE, Pusher, or
   Supabase Realtime.
