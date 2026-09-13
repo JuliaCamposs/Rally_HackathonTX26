@@ -54,7 +54,7 @@ export function SiteHeader({
           <PointsBar points={points} className="w-[108px]" />
         </div>
         <a
-          href="/auth/logout?returnTo=/"
+          href="/auth/logout"
           aria-label="Log out"
           title="Log out"
           className="grid size-9 place-items-center rounded-xl border border-line bg-white text-mute transition-colors hover:border-[#b8cdbf] hover:text-eucalyptus"
